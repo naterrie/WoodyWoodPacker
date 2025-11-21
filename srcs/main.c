@@ -1,12 +1,23 @@
 #include "woody.h"
 
+void initialize_woody(woody_t *woody)
+{
+	woody->fd = -1;
+	woody->size = 0;
+	woody->map = NULL;
+}
+
 int main(int argc, char **argv)
 {
+	woody_t file;
+	initialize_woody(&file);
+
 	if (argc != 2)
 	{
 		dprintf(2, "Usage: %s <file>\n", argv[0]);
 		return (EXIT_FAILURE);
 	}
-
+	if (check_file_format(&file, argv[1]) == -1)
+		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }

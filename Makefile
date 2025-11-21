@@ -6,7 +6,7 @@
 #    By: naterrie <naterrie@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/22 11:25:01 by ffaivre           #+#    #+#              #
-#    Updated: 2025/11/21 15:55:45 by naterrie         ###   ########.fr        #
+#    Updated: 2025/11/21 16:53:46 by naterrie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,7 @@ DIR_INCS		:=	incs
 LST_INCS		:=	woody.h
 
 LST_SRCS 		:=	main.c \
+					parsing.c
 
 LST_OBJS		:=	$(LST_SRCS:.c=.o)
 
