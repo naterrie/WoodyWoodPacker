@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: MadRaven <MadRaven@student.42.fr>          +#+  +:+       +#+         #
+#    By: naterrie <naterrie@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/22 11:25:01 by ffaivre           #+#    #+#              #
-#    Updated: 2024/07/05 18:33:49 by MadRaven         ###   ########.fr        #
+#    Updated: 2025/11/21 15:55:45 by naterrie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,13 +15,13 @@
 NAME 			:=	woody_woodpacker
 
 CC 				:= 	gcc
-CFLAGS 			:= 	-Wall -Wextra -Werror
+CFLAGS 			:= 	-Wall -Wextra -Werror -I $(DIR_INCS) -g3
 
 DIR_SRCS		:=	srcs
 DIR_OBJS		:=	.objs
 DIR_INCS		:=	incs
 
-LST_INCS		:=	
+LST_INCS		:=	woody.h
 
 LST_SRCS 		:=	main.c \
 
@@ -38,7 +38,7 @@ PRINTF = LC_NUMERIC="en_US.UTF-8" printf
 
 all:	$(NAME)
 
-$(NAME): $(OBJS) $(INCS) 
+$(NAME): $(OBJS) $(INCS)
 	@$(CC) $(CFLAGS) $^ -o $@
 	@$(PRINTF) "$(_PURPLE)$@ is up to date!$(_WHITE)\n"
 
