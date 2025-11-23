@@ -7,6 +7,7 @@
 #include <strings.h>
 #include <sys/mman.h>
 #include <elf.h>
+#include <sys/stat.h>
 
 typedef struct woody
 {

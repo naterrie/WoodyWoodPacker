@@ -4,11 +4,25 @@ int check_file_format(woody_t *woody, const char *filename)
 {
 	char *map;
 	woody->fd = open(filename, O_RDONLY);
+	
 	if (woody->fd < 0)
 	{
 		dprintf(2, "Couldn't open file descriptor\n");
 		return (EXIT_FAILURE);
 	}
+
+	if (fstat(woody->fd, &woody->st) < 0)
+	{
+		dprintf(2, "Couldn't get file stats\n");
+		return (EXIT_FAILURE);
+	}
+
+	if (woody->st.st_size == 0)
+	{
+		dprintf(2, "File is empty\n");
+		return (EXIT_FAILURE);
+	}
+
 	woody->map = mmap(NULL, woody->st.st_size, PROT_READ, MAP_PRIVATE, woody->fd, 0);
 	if (woody->map == MAP_FAILED)
 	{

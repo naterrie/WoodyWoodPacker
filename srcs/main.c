@@ -5,6 +5,7 @@ void initialize_woody(woody_t *woody)
 	woody->fd = -1;
 	woody->size = 0;
 	woody->map = NULL;
+	bzero(&woody->st, sizeof(struct stat));
 }
 
 int main(int argc, char **argv)
@@ -17,7 +18,8 @@ int main(int argc, char **argv)
 		dprintf(2, "Usage: %s <file>\n", argv[0]);
 		return (EXIT_FAILURE);
 	}
-	if (check_file_format(&file, argv[1]) == -1)
+	if (check_file_format(&file, argv[1]) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
+
 	return (EXIT_SUCCESS);
 }
