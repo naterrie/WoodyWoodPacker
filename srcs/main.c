@@ -1,6 +1,6 @@
 #include "woody.h"
 
-void initialize_woody(woody_t *woody)
+void initialize_woody(t_woody *woody)
 {
 	woody->fd = -1;
 	woody->size = 0;
@@ -10,7 +10,7 @@ void initialize_woody(woody_t *woody)
 
 int main(int argc, char **argv)
 {
-	woody_t file;
+	t_woody file;
 	initialize_woody(&file);
 
 	if (argc != 2)

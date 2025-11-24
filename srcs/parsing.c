@@ -1,6 +1,6 @@
 #include "woody.h"
 
-int check_file_format(woody_t *woody, const char *filename)
+int check_file_format(t_woody *woody, const char *filename)
 {
 	char *map;
 	woody->fd = open(filename, O_RDONLY);

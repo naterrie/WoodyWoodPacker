@@ -9,14 +9,14 @@
 #include <elf.h>
 #include <sys/stat.h>
 
-typedef struct woody
+typedef struct s_woody
 {
 	int		fd;
 	size_t	size;
 	void	*map;
 	struct stat st;
-} woody_t;
+} t_woody;
 
-int check_file_format(woody_t *woody, const char *filename);
+int check_file_format(t_woody *woody, const char *filename);
 
 #endif
