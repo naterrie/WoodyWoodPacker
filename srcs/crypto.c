@@ -53,6 +53,14 @@ void    xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4])
         dprintf(1, "%02x ", buff[i]);
     dprintf(1, "\n");
 
+    int padding = 8 - (size % 8);
+    if (padding == 8)
+        padding = 0x08;
+    
+    for (size_t i = size; i < size + padding; i++)
+        buff[i] = (unsigned char)padding;
+    size += padding;
+
     for (size_t i = 0; i + 8 <= size; i += 8)
     {
         sum = 0;
@@ -81,10 +89,10 @@ void    xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4])
         dprintf(1, "%02x ", buff[i]);
     dprintf(1, "\n");
 
-    xtea_decrypt_buff(buff, size, key);
+    xtea_decrypt_buff(buff, size, key, padding);
 }
 
-void    xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4])
+void    xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4], int padding)
 {
     const uint32_t  delta = 0x9E3779B9;
     uint32_t        v0, v1;
@@ -119,6 +127,9 @@ void    xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4])
         buff[i+7] = (v1 & 0xFF);
     }
 
+    size -= padding;
+    buff[size] = '\0';
+    
     dprintf(1, "Buffer after decryption:\n");
     for (size_t i = 0; i < size; i++)
         dprintf(1, "%02x ", buff[i]);
