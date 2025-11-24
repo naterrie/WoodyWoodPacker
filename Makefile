@@ -24,7 +24,8 @@ DIR_INCS		:=	incs
 LST_INCS		:=	woody.h
 
 LST_SRCS 		:=	main.c \
-					parsing.c
+					parsing.c \
+					crypto.c
 
 LST_OBJS		:=	$(LST_SRCS:.c=.o)
 
