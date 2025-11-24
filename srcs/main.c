@@ -14,6 +14,23 @@ static void test_crypto()
 	uint32_t key[4] = {0x0F1E2D3C, 0x4B5A6978, 0x8796A5B4, 0xC3D2E1F0};
 
 	xtea_encrypt(values, key);
+
+	dprintf(1, "\n");
+
+	void *buffer = malloc(16);
+	bzero(buffer, 16);
+	((uint32_t *)buffer)[0] = 0x11223344;
+	((uint32_t *)buffer)[1] = 0x55667788;
+	xtea_encrypt_buff(buffer, 16, key);
+	free(buffer);
+
+	dprintf(1, "\n");
+
+	void *buffer2 = malloc(70);
+	for (size_t i = 0; i < 70; i++)
+		((unsigned char *)buffer2)[i] = (unsigned char)i;
+	xtea_encrypt_buff(buffer2, 70, key);
+	free(buffer2);
 }
 
 int main(int argc, char **argv)
