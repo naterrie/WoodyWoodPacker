@@ -60,7 +60,7 @@ int	check_elf_header(t_woody *woody)
 			return (EXIT_FAILURE);
 		}
 
-		if (elf_header->e_type != ET_EXEC || elf_header->e_type != ET_DYN)
+		if (elf_header->e_type != ET_EXEC && elf_header->e_type != ET_DYN)
 		{
 			dprintf(2, "Not an executable file\n");
 			return (EXIT_FAILURE);
@@ -82,6 +82,7 @@ int	check_elf_header(t_woody *woody)
 			dprintf(2, "Invalid program header offset\n");
 			return (EXIT_FAILURE);
 		}
+		return (2);
 	}
 	else if (map[EI_CLASS] == ELFCLASS32)
 	{
@@ -93,7 +94,7 @@ int	check_elf_header(t_woody *woody)
 			return (EXIT_FAILURE);
 		}
 
-		if (elf_header->e_type != ET_EXEC || elf_header->e_type != ET_DYN)
+		if (elf_header->e_type != ET_EXEC && elf_header->e_type != ET_DYN)
 		{
 			dprintf(2, "Not an executable file\n");
 			return (EXIT_FAILURE);
@@ -116,6 +117,7 @@ int	check_elf_header(t_woody *woody)
 			dprintf(2, "Invalid program header offset\n");
 			return (EXIT_FAILURE);
 		}
+		return (3);
 	}
 
 	return (EXIT_SUCCESS);

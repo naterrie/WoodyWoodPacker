@@ -11,6 +11,7 @@ void initialize_woody(t_woody *woody)
 int main(int argc, char **argv)
 {
 	t_woody file;
+	int		elf_h;
 	initialize_woody(&file);
 
 	if (argc != 2)
@@ -21,7 +22,16 @@ int main(int argc, char **argv)
 	if (check_file_format(&file, argv[1]) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
 
-	if (check_elf_header(&file) != EXIT_SUCCESS)
+	elf_h = check_elf_header(&file);
+	if (elf_h == 2)
+	{
+		woody64(file);
+	}
+	else if (elf_h == 3)
+	{
+		woody32(file);
+	}
+	else
 		return (EXIT_FAILURE);
 
 	return (EXIT_SUCCESS);

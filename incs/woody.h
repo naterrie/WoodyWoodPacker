@@ -20,4 +20,8 @@ typedef struct s_woody
 int	check_file_format(t_woody *woody, const char *filename);
 int	check_elf_header(t_woody *woody);
 
+int	woody64(t_woody woody);
+
+int	woody32(t_woody woody);
+
 #endif
