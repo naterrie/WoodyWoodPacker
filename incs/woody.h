@@ -17,6 +17,7 @@ typedef struct s_woody
 	struct stat st;
 } t_woody;
 
-int check_file_format(t_woody *woody, const char *filename);
+int	check_file_format(t_woody *woody, const char *filename);
+int	check_elf_header(t_woody *woody);
 
 #endif

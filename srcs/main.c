@@ -21,5 +21,8 @@ int main(int argc, char **argv)
 	if (check_file_format(&file, argv[1]) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
 
+	if (check_elf_header(&file) != EXIT_SUCCESS)
+		return (EXIT_FAILURE);
+
 	return (EXIT_SUCCESS);
 }
