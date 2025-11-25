@@ -1,13 +1,13 @@
 #ifndef WOODY_H
-#define WOODY_H
+# define WOODY_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <strings.h>
-#include <sys/mman.h>
-#include <elf.h>
-#include <sys/stat.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <fcntl.h>
+# include <string.h>
+# include <sys/mman.h>
+# include <elf.h>
+# include <sys/stat.h>
 
 typedef struct s_woody
 {

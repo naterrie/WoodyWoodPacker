@@ -46,12 +46,16 @@ void    xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4])
     const uint32_t  delta = 0x9E3779B9;
     uint32_t        v0, v1;
     uint32_t        sum;
-    unsigned char   *buff = (unsigned char *)buffer;
+    unsigned char   buff[4096];
+    bzero(buff, 4096);
+    memcpy(buff, buffer, size);
 
     dprintf(1, "Buffer before encryption:\n");
     for (size_t i = 0; i < size; i++)
         dprintf(1, "%02x ", buff[i]);
     dprintf(1, "\n");
+
+    dprintf(1, "Original string: %s\n", buff);
 
     int padding = 8 - (size % 8);
     if (padding == 8)
@@ -88,6 +92,7 @@ void    xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4])
     for (size_t i = 0; i < size; i++)
         dprintf(1, "%02x ", buff[i]);
     dprintf(1, "\n");
+    dprintf(1, "Crypted string: %s\n", buff);
 
     xtea_decrypt_buff(buff, size, key, padding);
 }
@@ -103,6 +108,8 @@ void    xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4], int 
     for (size_t i = 0; i < size; i++)
         dprintf(1, "%02x ", buff[i]);
     dprintf(1, "\n");
+
+    dprintf(1, "Crypted string: %s\n", buff);
 
     for (size_t i = 0; i + 8 <= size; i += 8)
     {
@@ -134,4 +141,6 @@ void    xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4], int 
     for (size_t i = 0; i < size; i++)
         dprintf(1, "%02x ", buff[i]);
     dprintf(1, "\n");
+
+    dprintf(1, "Original string: %s\n", buff);
 }

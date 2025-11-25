@@ -31,6 +31,11 @@ static void test_crypto()
 		((unsigned char *)buffer2)[i] = (unsigned char)i;
 	xtea_encrypt_buff(buffer2, 70, key);
 	free(buffer2);
+
+	dprintf(1, "\n");
+
+	char test_buffer[14] = "Hello, World!";
+	xtea_encrypt_buff(test_buffer, 13, key);
 }
 
 int main(int argc, char **argv)
