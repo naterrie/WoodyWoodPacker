@@ -24,6 +24,7 @@ int check_file_format(t_woody *woody, const char *filename)
 		dprintf(2, "Memory mapping failed\n");
 		return (EXIT_FAILURE);
 	}
+	close(woody->fd);
 
 	map = (char *)woody->map;
 	if (map[EI_MAG0] != 0x7F || map[EI_MAG1] != 0x45 || \
@@ -77,8 +78,6 @@ int	check_elf_header(t_woody *woody)
 			dprintf(2, "Invalid program header offset\n");
 			return (EXIT_FAILURE);
 		}
-		close(woody->fd);
-		return (2);
 	}
 	else if (map[EI_CLASS] == ELFCLASS32)
 	{
@@ -113,8 +112,11 @@ int	check_elf_header(t_woody *woody)
 			dprintf(2, "Invalid program header offset\n");
 			return (EXIT_FAILURE);
 		}
-		return (3);
 	}
-
-	return (EXIT_SUCCESS);
+	else
+	{
+		dprintf(2, "Unknown ELF class\n");
+		return (EXIT_FAILURE);
+	}
+	return map[EI_CLASS];
 }
