@@ -24,10 +24,10 @@ DIR_INCS		:=	incs
 LST_INCS		:=	woody.h
 
 LST_SRCS 		:=	main.c \
-					parsing.c \
-					crypto.c \
-					stub.c \
-					libft.c
+					libft.c \
+					builder/parsing.c \
+					encrypt/xtea.c \
+					stub/stub_entry.c
 
 LST_OBJS		:=	$(LST_SRCS:.c=.o)
 
@@ -47,6 +47,7 @@ $(NAME): $(OBJS) $(INCS)
 	@$(PRINTF) "$(_PURPLE)$@ is up to date!$(_WHITE)\n"
 
 $(DIR_OBJS)/%.o: $(DIR_SRCS)/%.c $(INCS) Makefile | $(DIR_OBJS)
+	@mkdir -p $(dir $@)
 	@$(PRINTF) "Compiling $(_BLUE)$<$(_WHITE) into $@...\n"
 	@$(CC) $(CFLAGS) -I $(DIR_INCS) -c $< -o $@
 
