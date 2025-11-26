@@ -21,18 +21,21 @@ typedef struct s_woody
 
 typedef struct s_encrypt_data
 {
+	char		*path;
+
+	uint32_t	key[4];
+	int			padding;
+
 	uint64_t	offset;
 	uint64_t	size;
 	uint64_t	entrypoint;
-	uint32_t	key[4];
 }	t_encrypt_data;
 
 int			check_file_format(t_woody *woody, const char *filename);
 int			ft_strlen(const char *s);
-void		xtea_encrypt(uint32_t values[2], const uint32_t key[4]);
-void		xtea_decrypt(uint32_t values[2], const uint32_t key[4]);
-void    	xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4]);
-void    	xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4], int padding);
+void		xtea_encrypt_buff(void *buffer, char *path, size_t size, const uint32_t key[4], int padding);
+void    	xtea_decrypt_buff(char	*path, size_t size, const uint32_t key[4], int padding);
 void		generate_key(uint32_t key[4]);
+void		stub(t_encrypt_data *enc_data);
 
 #endif

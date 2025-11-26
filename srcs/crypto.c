@@ -2,91 +2,31 @@
 
 void    generate_key(uint32_t key[4])
 {
-	void        *buff = malloc(8);
-
 	int         fd = open("/dev/urandom", O_RDONLY);
 	if (fd < 0)
 	{
-		key[0] = 0x00000000;
-		key[1] = 0x00000000;
-		key[2] = 0x00000000;
-		key[3] = 0x00000000;
+		bzero(key, sizeof(uint32_t) * 4);
 		return ;
 	}
-	read(fd, buff, 8);
-	dprintf(1, "\n");
-	key[0] = *((uint32_t *)buff);
-	read(fd, buff, 8);
-	key[1] = *((uint32_t *)buff);
-	read(fd, buff, 8);
-	key[2] = *((uint32_t *)buff);
-	read(fd, buff, 8);
-	key[3] = *((uint32_t *)buff);
+
+	ssize_t rd = read(fd, key, sizeof(uint32_t) * 4);
+    if (rd != sizeof(uint32_t) * 4)
+		bzero(key, sizeof(uint32_t) * 4);
+
 	close(fd);
-	free(buff);
 }
 
-void    xtea_encrypt(uint32_t values[2], const uint32_t key[4])
-{
-	const uint32_t  delta = 0x9E3779B9;
-	uint32_t        sum = 0;
-	uint32_t        v0 = values[0];
-	uint32_t        v1 = values[1];
-
-	dprintf(1, "Value before encryption: %u %u\n", v0, v1);
-
-	for (int i = 0; i < 32; i++)
-	{
-		v0 += ((v1 << 4 ^ v1 >> 5) + v1) ^ (sum + key[sum & 3]);
-		sum += delta;
-		v1 += ((v0 << 4 ^ v0 >> 5) + v0) ^ (sum + key[(sum >> 11) & 3]);
-	}
-
-	dprintf(1, "Value after encryption: %u %u\n", v0, v1);
-
-	uint32_t values_bis[2] = {v0, v1};
-	xtea_decrypt(values_bis, key);
-}
-
-void    xtea_decrypt(uint32_t values[2], const uint32_t key[4])
-{
-	const uint32_t  delta = 0x9E3779B9;
-	uint32_t        sum = delta * 32;
-	uint32_t        v0 = values[0];
-	uint32_t        v1 = values[1];
-
-	dprintf(1, "Value before decryption: %u %u\n", v0, v1);
-
-	for (int i = 0; i < 32; i++)
-	{
-		v1 -= ((v0 << 4 ^ v0 >> 5) + v0) ^ (sum + key[(sum >> 11) & 3]);
-		sum -= delta;
-		v0 -= ((v1 << 4 ^ v1 >> 5) + v1) ^ (sum + key[sum & 3]);
-	}
-
-	dprintf(1, "Value after decryption: %u %u\n", v0, v1);
-}
-
-void    xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4])
+void	xtea_encrypt_buff(void *buffer, char *path, size_t size, const uint32_t key[4], int padding)
 {
 	const uint32_t  delta = 0x9E3779B9;
 	uint32_t        v0, v1;
 	uint32_t        sum;
+	int				fd;
 	unsigned char   buff[4096];
+
 	bzero(buff, 4096);
 	memcpy(buff, buffer, size);
 
-	dprintf(1, "Buffer before encryption:\n");
-	for (size_t i = 0; i < size; i++)
-		dprintf(1, "%02x ", buff[i]);
-	dprintf(1, "\n");
-
-	dprintf(1, "Original string: %s\n\n", buff);
-
-	int padding = 8 - (size % 8);
-	if (padding == 8)
-		padding = 0x08;
-	
 	for (size_t i = size; i < size + padding; i++)
 		buff[i] = (unsigned char)padding;
 	size += padding;
@@ -114,28 +54,34 @@ void    xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4])
 		buff[i+7] = v1 & 0xFF;
 	}
 
-	dprintf(1, "Buffer after encryption:\n");
-	for (size_t i = 0; i < size; i++)
-		dprintf(1, "%02x ", buff[i]);
-	dprintf(1, "\n");
-	dprintf(1, "Crypted string: %s\n\n", buff);
-
-	xtea_decrypt_buff(buff, size, key, padding);
+	fd = open(path, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (fd < 0)
+	{
+		dprintf(2, "Couldn't create encrypted_secret file\n");
+		return ;
+	}
+	write(fd, buff, size);
+	close(fd);
+	
 }
 
-void    xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4], int padding)
+void    xtea_decrypt_buff(char	*path, size_t size, const uint32_t key[4], int padding)
 {
 	const uint32_t  delta = 0x9E3779B9;
 	uint32_t        v0, v1;
 	uint32_t        sum;
-	unsigned char   *buff = (unsigned char *)buffer;
+	unsigned char   *buff;
+	int				fd;
 
-	dprintf(1, "Buffer before decryption:\n");
-	for (size_t i = 0; i < size; i++)
-		dprintf(1, "%02x ", buff[i]);
-	dprintf(1, "\n");
-
-	dprintf(1, "Crypted string: %s\n\n", buff);
+	fd = open(path, O_RDONLY);
+	if (fd < 0)
+	{
+		dprintf(2, "Couldn't open encrypted_secret for reading\n");
+		return ;
+	}
+	buff = malloc(size);
+	read(fd, buff, size);
+	close(fd);
 
 	for (size_t i = 0; i + 8 <= size; i += 8)
 	{
@@ -162,11 +108,4 @@ void    xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4], int 
 
 	size -= padding;
 	buff[size] = '\0';
-	
-	dprintf(1, "Buffer after decryption:\n");
-	for (size_t i = 0; i < size; i++)
-		dprintf(1, "%02x ", buff[i]);
-	dprintf(1, "\n");
-
-	dprintf(1, "Original string: %s\n\n", buff);
 }

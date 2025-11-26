@@ -6,19 +6,28 @@ static void initialize_woody(t_woody *woody, t_encrypt_data *enc_data)
 	woody->size = 0;
 	woody->map = NULL;
 	bzero(&woody->st, sizeof(struct stat));
+
+	enc_data->path = "encrypted_file";
+	bzero(enc_data->key, sizeof(uint32_t) * 4);
+	enc_data->padding = 0;
 	enc_data->offset = 0;
 	enc_data->size = 0;
 	enc_data->entrypoint = 0;
-	bzero(enc_data->key, sizeof(uint32_t) * 4);
 }
 
 static	void test_stub(t_encrypt_data *enc_data)
 {
 	char	secret[] = "This is a secret message!\nPlease keep it safe.\n";
-	char	secret_size = ft_strlen(secret) + 1;
+	enc_data->size = ft_strlen(secret);
 
 	generate_key(enc_data->key);
-	xtea_encrypt_buff(secret, secret_size, enc_data->key);
+
+	enc_data->padding = 8 - (enc_data->size % 8);
+	if (enc_data->padding == 0)
+		enc_data->padding = 0x08;
+	
+	xtea_encrypt_buff(secret, enc_data->path, enc_data->size, enc_data->key, enc_data->padding);
+	stub(enc_data);
 }
 
 int main(int argc, char **argv)
