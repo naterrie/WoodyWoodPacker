@@ -5,7 +5,7 @@ void initialize_woody(t_woody *woody)
 	woody->fd = -1;
 	woody->size = 0;
 	woody->map = NULL;
-	bzero(&woody->st, sizeof(struct stat));
+	woody->size = 0;
 }
 
 int main(int argc, char **argv)

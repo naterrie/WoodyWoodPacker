@@ -11,19 +11,14 @@ int check_file_format(t_woody *woody, const char *filename)
 		return (EXIT_FAILURE);
 	}
 
-	if (fstat(woody->fd, &woody->st) < 0)
+	woody->size = lseek(woody->fd, 0, SEEK_END);
+	if (woody->size == (size_t)-1)
 	{
-		dprintf(2, "Couldn't get file stats\n");
+		dprintf(2, "Couldn't determine file size\n");
 		return (EXIT_FAILURE);
 	}
 
-	if (woody->st.st_size == 0)
-	{
-		dprintf(2, "File is empty\n");
-		return (EXIT_FAILURE);
-	}
-
-	woody->map = mmap(NULL, woody->st.st_size, PROT_READ, MAP_PRIVATE, woody->fd, 0);
+	woody->map = mmap(NULL, woody->size, PROT_READ, MAP_PRIVATE, woody->fd, 0);
 	if (woody->map == MAP_FAILED)
 	{
 		dprintf(2, "Memory mapping failed\n");
@@ -71,17 +66,18 @@ int	check_elf_header(t_woody *woody)
 			return (EXIT_FAILURE);
 		}
 
-		if (elf_header->e_shoff >= (Elf64_Off)woody->st.st_size)
+		if (elf_header->e_shoff >= (Elf64_Off)woody->size)
 		{
 			dprintf(2, "Invalid section header offset\n");
 			return (EXIT_FAILURE);
 		}
 
-		if (elf_header->e_phoff >= (Elf64_Off)woody->st.st_size)
+		if (elf_header->e_phoff >= (Elf64_Off)woody->size)
 		{
 			dprintf(2, "Invalid program header offset\n");
 			return (EXIT_FAILURE);
 		}
+		close(woody->fd);
 		return (2);
 	}
 	else if (map[EI_CLASS] == ELFCLASS32)
@@ -106,13 +102,13 @@ int	check_elf_header(t_woody *woody)
 			return (EXIT_FAILURE);
 		}
 
-		if (elf_header->e_shoff >= (Elf32_Off)woody->st.st_size)
+		if (elf_header->e_shoff >= (Elf32_Off)woody->size)
 		{
 			dprintf(2, "Invalid section header offset\n");
 			return (EXIT_FAILURE);
 		}
 
-		if (elf_header->e_phoff >= (Elf32_Off)woody->st.st_size)
+		if (elf_header->e_phoff >= (Elf32_Off)woody->size)
 		{
 			dprintf(2, "Invalid program header offset\n");
 			return (EXIT_FAILURE);
