@@ -36,6 +36,11 @@ static void test_crypto()
 
 	char test_buffer[14] = "Hello, World!";
 	xtea_encrypt_buff(test_buffer, 13, key);
+
+	dprintf(1, "\n");
+	uint32_t gen_key[4];
+	generate_key(gen_key);
+	dprintf(1, "Key generated: %x %x %x %x\n", gen_key[0], gen_key[1], gen_key[2], gen_key[3]);
 }
 
 int main(int argc, char **argv)

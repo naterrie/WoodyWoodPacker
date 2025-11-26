@@ -3,6 +3,8 @@
 
 # include <stdio.h>
 # include <stdlib.h>
+# include <unistd.h>
+# include <stdint.h>
 # include <fcntl.h>
 # include <string.h>
 # include <sys/mman.h>
@@ -17,10 +19,11 @@ typedef struct s_woody
 	struct stat st;
 } t_woody;
 
-int		check_file_format(t_woody *woody, const char *filename);
-void	xtea_encrypt(uint32_t values[2], const uint32_t key[4]);
-void	xtea_decrypt(uint32_t values[2], const uint32_t key[4]);
-void    xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4]);
-void    xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4], int padding);
+int			check_file_format(t_woody *woody, const char *filename);
+void		xtea_encrypt(uint32_t values[2], const uint32_t key[4]);
+void		xtea_decrypt(uint32_t values[2], const uint32_t key[4]);
+void    	xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4]);
+void    	xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4], int padding);
+void		generate_key(uint32_t key[4]);
 
 #endif

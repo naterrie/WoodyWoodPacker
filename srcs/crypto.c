@@ -1,5 +1,31 @@
 #include "woody.h"
 
+void    generate_key(uint32_t key[4])
+{
+    void        *buff = malloc(8);
+
+    int         fd = open("/dev/urandom", O_RDONLY);
+    if (fd == -1)
+    {
+        key[0] = 0x00000000;
+        key[1] = 0x00000000;
+        key[2] = 0x00000000;
+        key[3] = 0x00000000;
+        return ;
+    }
+    read(fd, buff, 8);
+    dprintf(1, "\n");
+    key[0] = *((uint32_t *)buff);
+    read(fd, buff, 8);
+    key[1] = *((uint32_t *)buff);
+    read(fd, buff, 8);
+    key[2] = *((uint32_t *)buff);
+    read(fd, buff, 8);
+    key[3] = *((uint32_t *)buff);
+    close(fd);
+    free(buff);
+}
+
 void    xtea_encrypt(uint32_t values[2], const uint32_t key[4])
 {
     const uint32_t  delta = 0x9E3779B9;
