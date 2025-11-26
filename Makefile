@@ -25,9 +25,9 @@ LST_INCS		:=	woody.h
 
 LST_SRCS 		:=	main.c \
 					libft.c \
-					builder/parsing.c \
+					parsing/parsing.c \
 					encrypt/xtea.c \
-					stub/stub_entry.c
+					stub/stub.c
 
 LST_OBJS		:=	$(LST_SRCS:.c=.o)
 

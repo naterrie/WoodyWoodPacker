@@ -5,10 +5,11 @@ static void    fake_entry() {
     printf("Message: This is the original programm\n");
 }
 
-void    stub(t_encrypt_data *enc_data)
+void    stub(t_woody_meta *metadata, unsigned char *encrypted_text)
 {
     write(1, "....WOODY....\n", 14);
-	xtea_decrypt_buff(enc_data->path, enc_data->size + enc_data->padding, enc_data->key, enc_data->padding);
+
+    xtea_decrypt_buff(encrypted_text, metadata->text_size, metadata->key);
 
     void    (*entrypoint)() = (void(*)())fake_entry;
     entrypoint();

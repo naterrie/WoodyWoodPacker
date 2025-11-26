@@ -1,41 +1,24 @@
 #include "woody.h"
 
-static void initialize_woody(t_woody *woody, t_encrypt_data *enc_data)
+static void initialize(t_woody *woody, t_woody_meta *metadata)
 {
 	woody->fd = -1;
 	woody->size = 0;
 	woody->map = NULL;
 	bzero(&woody->st, sizeof(struct stat));
 
-	enc_data->path = "encrypted_file";
-	bzero(enc_data->key, sizeof(uint32_t) * 4);
-	enc_data->padding = 0;
-	enc_data->offset = 0;
-	enc_data->size = 0;
-	enc_data->entrypoint = 0;
-}
-
-static	void test_stub(t_encrypt_data *enc_data)
-{
-	char	secret[] = "This is a secret message!\nPlease keep it safe.\n";
-	enc_data->size = ft_strlen(secret);
-
-	generate_key(enc_data->key);
-
-	enc_data->padding = 8 - (enc_data->size % 8);
-	if (enc_data->padding == 0)
-		enc_data->padding = 0x08;
-	
-	xtea_encrypt_buff(secret, enc_data->path, enc_data->size, enc_data->key, enc_data->padding);
-	stub(enc_data);
+	metadata->text_offset = 0;
+	metadata->text_size = 0;
+	metadata->original_entrypoint = 0;
+	bzero(metadata->key, sizeof(uint32_t) * 4);
 }
 
 int main(int argc, char **argv)
 {
 	t_woody			file;
-	t_encrypt_data	enc_data;
+	t_woody_meta	metadata;
 
-	initialize_woody(&file, &enc_data);
+	initialize(&file, &metadata);
 
 	if (argc != 2)
 	{
@@ -46,7 +29,20 @@ int main(int argc, char **argv)
 	if (check_file_format(&file, argv[1]) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
 
-	test_stub(&enc_data);
+	char	message[] = "This is a test [PLACEHOLDER]\n";
+	metadata.text_size = strlen(message);
+
+	generate_key(metadata.key);
+	dprintf(1, "KEY: %X %X %X %X\n", metadata.key[0], metadata.key[1], metadata.key[2], metadata.key[3]);
+
+	unsigned char	encrypted_text[4096];
+	size_t	enc_size = xtea_encrypt_buff(message, metadata.text_size, metadata.key, encrypted_text);
+	dprintf(1, "Encrypted message (%zu bytes):\n", enc_size);
+	for (size_t i = 0; i < enc_size; i++)
+		printf("%02X ", encrypted_text[i]);
+	printf("\n");
+
+	stub(&metadata, encrypted_text);
 
 	return (EXIT_SUCCESS);
 }

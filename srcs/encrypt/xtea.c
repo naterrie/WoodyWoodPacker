@@ -4,10 +4,7 @@ void    generate_key(uint32_t key[4])
 {
 	int         fd = open("/dev/urandom", O_RDONLY);
 	if (fd < 0)
-	{
-		bzero(key, sizeof(uint32_t) * 4);
 		return ;
-	}
 
 	ssize_t rd = read(fd, key, sizeof(uint32_t) * 4);
     if (rd != sizeof(uint32_t) * 4)
@@ -16,15 +13,18 @@ void    generate_key(uint32_t key[4])
 	close(fd);
 }
 
-void	xtea_encrypt_buff(void *buffer, char *path, size_t size, const uint32_t key[4], int padding)
+size_t	xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4], unsigned char *out_buff)
 {
 	const uint32_t  delta = 0x9E3779B9;
 	uint32_t        v0, v1;
 	uint32_t        sum;
-	int				fd;
-	unsigned char   buff[4096];
 
-	bzero(buff, 4096);
+	size_t padding = 8 - (size % 8);
+	if (padding == 0)
+		padding = 0x08;
+
+	unsigned char   *buff;
+	buff = malloc(size + padding);
 	memcpy(buff, buffer, size);
 
 	for (size_t i = size; i < size + padding; i++)
@@ -53,14 +53,49 @@ void	xtea_encrypt_buff(void *buffer, char *path, size_t size, const uint32_t key
 		buff[i+6] = (v1 >> 8) & 0xFF;
 		buff[i+7] = v1 & 0xFF;
 	}
+	memcpy(out_buff, buff, size);
+	free(buff);
+	return(size);
+}
 
-	fd = open(path, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	if (fd < 0)
+void	xtea_decrypt_buff(unsigned char *buffer, size_t size, const uint32_t key[4])
+{
+	const uint32_t  delta = 0x9E3779B9;
+	uint32_t        v0, v1;
+	uint32_t        sum;
+
+	size_t	padding = 8 - (size % 8);
+	if (padding == 0)
+		padding = 0x08;
+
+	size += padding;
+
+	for (size_t i = 0; i + 8 <= size; i += 8)
 	{
-		dprintf(2, "Couldn't create encrypted_secret file\n");
-		return ;
+		v0 = (buffer[i] << 24) | (buffer[i+1] << 16) | (buffer[i+2] << 8) | (buffer[i+3]);
+		v1 = (buffer[i+4] << 24) | (buffer[i+5] << 16) | (buffer[i+6] << 8) | (buffer[i+7]);
+
+		sum = delta * 32;
+
+		for (int j = 0; j < 32; j++)
+		{
+			v1 -= ((v0 << 4 ^ v0 >> 5) + v0) ^ (sum + key[(sum >> 11) & 3]);
+			sum -= delta;
+			v0 -= ((v1 << 4 ^ v1 >> 5) + v1) ^ (sum + key[sum & 3]);
+		}
+
+		buffer[i] = (v0 >> 24) & 0xFF;
+		buffer[i+1] = (v0 >> 16) & 0xFF;
+		buffer[i+2] = (v0 >> 8) & 0xFF;
+		buffer[i+3] = v0 & 0xFF;
+		buffer[i+4] = (v1 >> 24) & 0xFF;
+		buffer[i+5] = (v1 >> 16) & 0xFF;
+		buffer[i+6] = (v1 >> 8) & 0xFF;
+		buffer[i+7] = v1 & 0xFF;
 	}
-	write(fd, buff, size);
-	close(fd);
-	
+
+	buffer[size - padding] = '\0';
+	for (size_t i = 0; i < size; i++)
+		printf("%c", buffer[i]);
+	printf("\n");
 }
