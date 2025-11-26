@@ -25,7 +25,9 @@ LST_INCS		:=	woody.h
 
 LST_SRCS 		:=	main.c \
 					parsing.c \
-					crypto.c
+					crypto.c \
+					stub.c \
+					libft.c
 
 LST_OBJS		:=	$(LST_SRCS:.c=.o)
 

@@ -5,7 +5,7 @@ void    generate_key(uint32_t key[4])
 	void        *buff = malloc(8);
 
 	int         fd = open("/dev/urandom", O_RDONLY);
-	if (fd == -1)
+	if (fd < 0)
 	{
 		key[0] = 0x00000000;
 		key[1] = 0x00000000;
@@ -81,7 +81,7 @@ void    xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4])
 		dprintf(1, "%02x ", buff[i]);
 	dprintf(1, "\n");
 
-	dprintf(1, "Original string: %s\n", buff);
+	dprintf(1, "Original string: %s\n\n", buff);
 
 	int padding = 8 - (size % 8);
 	if (padding == 8)
@@ -118,7 +118,7 @@ void    xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4])
 	for (size_t i = 0; i < size; i++)
 		dprintf(1, "%02x ", buff[i]);
 	dprintf(1, "\n");
-	dprintf(1, "Crypted string: %s\n", buff);
+	dprintf(1, "Crypted string: %s\n\n", buff);
 
 	xtea_decrypt_buff(buff, size, key, padding);
 }
@@ -135,7 +135,7 @@ void    xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4], int 
 		dprintf(1, "%02x ", buff[i]);
 	dprintf(1, "\n");
 
-	dprintf(1, "Crypted string: %s\n", buff);
+	dprintf(1, "Crypted string: %s\n\n", buff);
 
 	for (size_t i = 0; i + 8 <= size; i += 8)
 	{
@@ -168,5 +168,5 @@ void    xtea_decrypt_buff(void *buffer, size_t size, const uint32_t key[4], int 
 		dprintf(1, "%02x ", buff[i]);
 	dprintf(1, "\n");
 
-	dprintf(1, "Original string: %s\n", buff);
+	dprintf(1, "Original string: %s\n\n", buff);
 }
