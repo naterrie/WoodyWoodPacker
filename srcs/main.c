@@ -40,7 +40,7 @@ static void test_crypto()
 	dprintf(1, "\n");
 	uint32_t gen_key[4];
 	generate_key(gen_key);
-	dprintf(1, "Key generated: %x %x %x %x\n", gen_key[0], gen_key[1], gen_key[2], gen_key[3]);
+	dprintf(1, "Key generated: %X %X %X %X\n", gen_key[0], gen_key[1], gen_key[2], gen_key[3]);
 }
 
 int main(int argc, char **argv)
