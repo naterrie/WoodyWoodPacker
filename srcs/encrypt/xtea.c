@@ -25,6 +25,8 @@ size_t	xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4], unsig
 
 	unsigned char   *buff;
 	buff = malloc(size + padding);
+	if (!buff)
+		return (0);
 	memcpy(buff, buffer, size);
 
 	for (size_t i = size; i < size + padding; i++)
