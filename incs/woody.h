@@ -17,7 +17,15 @@ typedef struct s_woody
 	size_t	size;
 	void	*map;
 	struct stat st;
-} t_woody;
+}	t_woody;
+
+typedef struct s_encrypt_datas
+{
+	uint64_t	offset;
+	uint64_t	size;
+	uint64_t	entrypoint;
+	uint32_t	key[4];
+}	t_encrypt_datas;
 
 int			check_file_format(t_woody *woody, const char *filename);
 void		xtea_encrypt(uint32_t values[2], const uint32_t key[4]);
