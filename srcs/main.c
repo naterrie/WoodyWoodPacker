@@ -52,15 +52,9 @@ int main(int argc, char **argv)
 	if (padding == 0)
 		padding = 0x08;
 
-	for (size_t i = 0; i < metadata.text_size; i++)
-		printf("%X ", text_content[i]);
-	printf("\n");
-
 	memset(text_content + metadata.text_size, padding, padding);
 
 	xtea_encrypt_buff(text_content, metadata.text_size + padding, metadata.key);
-
-	stub(&metadata, text_content);
 
 	if (cpy_file(&file) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
