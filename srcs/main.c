@@ -23,13 +23,14 @@ int main(int argc, char **argv)
 		return (EXIT_FAILURE);
 
 	elf_h = check_elf_header(&file);
+
 	if (elf_h == 2)
 	{
-		woody64(file);
+		woody64(&file);
 	}
 	else if (elf_h == 3)
 	{
-		woody32(file);
+		woody32(&file);
 	}
 	else
 		return (EXIT_FAILURE);
