@@ -28,7 +28,6 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 		return (EXIT_FAILURE);
 	}
 
-
 	for (int i = 0; i < elf_header->e_phnum; i++)
 	{
 		if (program_header[i].p_type == PT_LOAD)
@@ -41,24 +40,59 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 			}
 		}
 	}
-	void *entry_point = (void *)(elf_header->e_entry);
 
 	metadata->text_offset = text_sh->sh_offset;
 	metadata->text_size = text_sh->sh_size;
 	metadata->original_entrypoint = elf_header->e_entry;
-
-	printf(".text found: offset=0x%lx, addr=0x%lx, size=0x%lx\n",
-		(unsigned long)text_sh->sh_offset, (unsigned long)text_sh->sh_addr, (unsigned long)text_sh->sh_size);
-	printf("Entry point at address: %p\n", entry_point);
-	printf("Last PT_LOAD segment ends at address: 0x%lx\n", (unsigned long)last_segment_end);
-	printf("Last program header PT_LOAD p_vaddr: 0x%lx\n\n", (unsigned long)last_phdr->p_vaddr);
-
+	(void)last_phdr;
 	return (EXIT_SUCCESS);
 }
 
-int	woody32(t_woody *woody)
+int	woody32(t_woody *woody, t_woody_meta *metadata)
 {
-	(void)woody;
+	Elf32_Ehdr	*elf_header = (Elf32_Ehdr *)woody->map;
+	Elf32_Phdr	*program_header = (Elf32_Phdr *)(woody->map + elf_header->e_phoff);
+	Elf32_Phdr	*last_phdr = NULL;
+	Elf32_Addr	last_segment_end = 0;
+
+	Elf32_Shdr	*section_header = (Elf32_Shdr *)(woody->map + elf_header->e_shoff);
+	Elf32_Shdr	*sh_strtab = &section_header[elf_header->e_shstrndx];
+	const char	*sh_strtab_p = woody->map + sh_strtab->sh_offset;
+	Elf32_Shdr	*text_sh = NULL;
+
+	for (int i = 0; i < elf_header->e_shnum; i++)
+	{
+		const char *name = sh_strtab_p + section_header[i].sh_name;
+		if (strcmp(name, ".text") == 0)
+		{
+			text_sh = &section_header[i];
+			break;
+		}
+	}
+
+	if (!text_sh)
+	{
+		dprintf(2, "Failed to find .text section\n");
+		return (EXIT_FAILURE);
+	}
+
+	for (int i = 0; i < elf_header->e_phnum; i++)
+	{
+		if (program_header[i].p_type == PT_LOAD)
+		{
+			Elf32_Addr segment_end = program_header[i].p_vaddr + program_header[i].p_memsz;
+			if (segment_end > last_segment_end)
+			{
+				last_segment_end = segment_end;
+				last_phdr = &program_header[i];
+			}
+		}
+	}
+
+	metadata->text_offset = text_sh->sh_offset;
+	metadata->text_size = text_sh->sh_size;
+	metadata->original_entrypoint = elf_header->e_entry;
+	(void)last_phdr;
 	return (EXIT_SUCCESS);
 }
 
