@@ -56,6 +56,9 @@ int main(int argc, char **argv)
 	printf("\n");
 
 	stub(&metadata, text_content);
+	cpy_file(&file);
+
+	munmap(file.map, file.size);
 
 	return (EXIT_SUCCESS);
 }

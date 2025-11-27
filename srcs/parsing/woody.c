@@ -2,7 +2,6 @@
 
 int	woody64(t_woody	*woody, t_woody_meta *metadata)
 {
-	(void)woody;
 	Elf64_Ehdr	*elf_header = (Elf64_Ehdr *)woody->map;
 	Elf64_Phdr	*program_header = (Elf64_Phdr *)(woody->map + elf_header->e_phoff);
 	Elf64_Phdr	*last_phdr = NULL;
@@ -53,7 +52,7 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 	printf("Entry point at address: %p\n", entry_point);
 	printf("Last PT_LOAD segment ends at address: 0x%lx\n", (unsigned long)last_segment_end);
 	printf("Last program header PT_LOAD p_vaddr: 0x%lx\n\n", (unsigned long)last_phdr->p_vaddr);
-	munmap(woody->map, woody->size);
+
 	return (EXIT_SUCCESS);
 }
 
@@ -62,3 +61,37 @@ int	woody32(t_woody *woody)
 	(void)woody;
 	return (EXIT_SUCCESS);
 }
+
+int	cpy_file(t_woody *woody)
+{
+	int	fd_cpy = open("woody", O_CREAT | O_RDWR | O_TRUNC, 0755);
+	size_t	bytes_written = 0;
+
+	if (fd_cpy < 0)
+	{
+		dprintf(2, "Failed to create copy file\n");
+		return (EXIT_FAILURE);
+	}
+	while (bytes_written < woody->size)
+	{
+		printf("Writing... %zu / %zu bytes\r", bytes_written, woody->size);
+		ssize_t result = write(fd_cpy, (char *)woody->map + bytes_written, woody->size - bytes_written);
+		 if (result < 0)
+		{
+			perror("write copy file");
+			dprintf(2, "Failed to write to copy file\n");
+			close(fd_cpy);
+			return (EXIT_FAILURE);
+		}
+		if (result == 0)
+		{
+			dprintf(2, "write returned 0 unexpectedly\n");
+			close(fd_cpy);
+			return (EXIT_FAILURE);
+		}
+		bytes_written += result;
+	}
+	close(fd_cpy);
+	return (EXIT_SUCCESS);
+}
+
