@@ -48,7 +48,18 @@ int main(int argc, char **argv)
 	dprintf(1, "KEY: %X %X %X %X\n", metadata.key[0], metadata.key[1], metadata.key[2], metadata.key[3]);
 
 	unsigned char	*text_content = file.map + metadata.text_offset;
-	xtea_encrypt_buff(text_content, metadata.text_size, metadata.key);
+
+	size_t	padding = 8 - (metadata.text_size % 8);
+	if (padding == 0)
+		padding = 0x08;
+
+	for (size_t i = 0; i < metadata.text_size; i++)
+		printf("%X ", text_content[i]);
+	printf("\n");
+
+	memset(text_content + metadata.text_size, padding, padding);
+
+	xtea_encrypt_buff(text_content, metadata.text_size + padding, metadata.key);
 
 	stub(&metadata, text_content);
 	cpy_file(&file);
