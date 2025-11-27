@@ -43,9 +43,6 @@ int main(int argc, char **argv)
 	else
 		return (EXIT_FAILURE);
 
-
-	cpy_file(&file);
-
 	generate_key(metadata.key);
 	dprintf(1, "KEY: %X %X %X %X\n", metadata.key[0], metadata.key[1], metadata.key[2], metadata.key[3]);
 
@@ -53,6 +50,9 @@ int main(int argc, char **argv)
 	xtea_encrypt_buff(text_content, metadata.text_size, metadata.key);
 
 	stub(&metadata, text_content);
+
+	if (cpy_file(&file) != EXIT_SUCCESS)
+		return (EXIT_FAILURE);
 
 	munmap(file.map, file.size);
 
