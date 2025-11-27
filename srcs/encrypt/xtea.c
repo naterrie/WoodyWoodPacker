@@ -83,8 +83,4 @@ void	xtea_decrypt_buff(unsigned char *buffer, size_t size, const uint32_t key[4]
 
 	for (size_t i = 0; i < padding; i++)
 		buffer[size - 1 - i] = 0x90;
-
-	for (size_t i = 0; i < size; i++)
-		printf("%X ", buffer[i]);
-	printf("\n");
 }
