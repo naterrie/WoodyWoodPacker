@@ -57,7 +57,11 @@ int main(int argc, char **argv)
 		printf("%02X ", encrypted_text[i]);
 	printf("\n");
 
+	cpy_file(&file);
+
 	stub(&metadata, encrypted_text);
+
+	munmap(file.map, file.size);
 
 	return (EXIT_SUCCESS);
 }
