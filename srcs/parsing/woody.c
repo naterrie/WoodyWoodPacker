@@ -105,7 +105,20 @@ int	woody32(t_woody *woody, t_woody_meta *metadata)
 	metadata->text_offset = text_sh->sh_offset;
 	metadata->text_size = text_sh->sh_size;
 	metadata->original_entrypoint = elf_header->e_entry;
-	(void)last_phdr;
+
+	unsigned long	stub_offset = last_phdr->p_offset + last_phdr->p_filesz;
+	unsigned long	stub_vaddr = last_phdr->p_vaddr + last_phdr->p_memsz;
+
+	(void)stub_offset;
+	(void)stub_vaddr;
+	// elf_header->e_entry = stub_vaddr
+	// need to update last_phdr size to include stub
+
+	// last_phdr->p_filesz +=
+	// last_phdr->p_memsz +=
+
+	// memcpy(woody->map + stub_offset, stubptr, stubsize);
+
 	return (EXIT_SUCCESS);
 }
 
@@ -123,16 +136,9 @@ int	cpy_file(t_woody *woody)
 	{
 		printf("Writing... %zu / %zu bytes\r", bytes_written, woody->size);
 		ssize_t result = write(fd_cpy, (char *)woody->map + bytes_written, woody->size - bytes_written);
-		 if (result < 0)
+		 if (result <= 0)
 		{
 			perror("write copy file");
-			dprintf(2, "Failed to write to copy file\n");
-			close(fd_cpy);
-			return (EXIT_FAILURE);
-		}
-		if (result == 0)
-		{
-			dprintf(2, "write returned 0 unexpectedly\n");
 			close(fd_cpy);
 			return (EXIT_FAILURE);
 		}
