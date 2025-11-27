@@ -38,11 +38,10 @@ int main(int argc, char **argv)
 	}
 	else if (elf_h == 3)
 	{
-		woody32(&file);
+		woody32(&file, &metadata);
 	}
 	else
 		return (EXIT_FAILURE);
-
 
 	generate_key(metadata.key);
 	dprintf(1, "KEY: %X %X %X %X\n", metadata.key[0], metadata.key[1], metadata.key[2], metadata.key[3]);
@@ -62,7 +61,9 @@ int main(int argc, char **argv)
 	xtea_encrypt_buff(text_content, metadata.text_size + padding, metadata.key);
 
 	stub(&metadata, text_content);
-	cpy_file(&file);
+
+	if (cpy_file(&file) != EXIT_SUCCESS)
+		return (EXIT_FAILURE);
 
 	munmap(file.map, file.size);
 
