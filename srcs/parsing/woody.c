@@ -1,6 +1,6 @@
 #include "woody.h"
 
-int	woody64(t_woody	*woody)
+int	woody64(t_woody	*woody, t_woody_meta *metadata)
 {
 	(void)woody;
 	Elf64_Ehdr	*elf_header = (Elf64_Ehdr *)woody->map;
@@ -43,6 +43,10 @@ int	woody64(t_woody	*woody)
 		}
 	}
 	void *entry_point = (void *)(elf_header->e_entry);
+
+	metadata->text_offset = text_sh->sh_offset;
+	metadata->text_size = text_sh->sh_size;
+	metadata->original_entrypoint = elf_header->e_entry;
 
 	printf(".text found: offset=0x%lx, addr=0x%lx, size=0x%lx\n",
 		(unsigned long)text_sh->sh_offset, (unsigned long)text_sh->sh_addr, (unsigned long)text_sh->sh_size);

@@ -13,7 +13,7 @@ void    generate_key(uint32_t key[4])
 	close(fd);
 }
 
-size_t	xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4], unsigned char *out_buff)
+size_t	xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4])
 {
 	const uint32_t  delta = 0x9E3779B9;
 	uint32_t        v0, v1;
@@ -27,6 +27,15 @@ size_t	xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4], unsig
 	buff = malloc(size + padding);
 	if (!buff)
 		return (0);
+
+	dprintf(1, "Original size: %zu\n", size);
+	dprintf(1, "Padding size: %zu\n", padding);
+
+	dprintf(1, "Buffer before padding:\n");
+	for (size_t i = 0; i < size; i++)
+		dprintf(1, "%c", ((unsigned char *)buffer)[i]);
+	printf("\n");
+	
 	memcpy(buff, buffer, size);
 
 	for (size_t i = size; i < size + padding; i++)
@@ -55,7 +64,7 @@ size_t	xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4], unsig
 		buff[i+6] = (v1 >> 8) & 0xFF;
 		buff[i+7] = v1 & 0xFF;
 	}
-	memcpy(out_buff, buff, size);
+	memcpy(buffer, buff, size);
 	free(buff);
 	return(size);
 }
