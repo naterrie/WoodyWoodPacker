@@ -58,6 +58,7 @@ int main(int argc, char **argv)
 	if (cpy_file(&file) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
 
+	close(file.fd);
 	munmap(file.map, file.size);
 
 	return (EXIT_SUCCESS);

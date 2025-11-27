@@ -18,11 +18,11 @@ typedef struct s_woody
 	void	*map;
 }	t_woody;
 
-typedef struct s_woody_meta {
-    uint64_t	text_offset;
-    uint64_t	text_size;
-    uint64_t	original_entrypoint;
-    uint32_t	key[4];
+typedef struct	s_woody_meta {
+	uint64_t	text_offset;
+	uint64_t	text_size;
+	uint64_t	original_entrypoint;
+	uint32_t	key[4];
 }	t_woody_meta;
 
 int			check_file_format(t_woody *woody, const char *filename);

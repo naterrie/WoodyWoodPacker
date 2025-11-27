@@ -124,19 +124,20 @@ int	woody32(t_woody *woody, t_woody_meta *metadata)
 
 int	cpy_file(t_woody *woody)
 {
-	int	fd_cpy = open("woody", O_CREAT | O_RDWR | O_TRUNC, 0755);
+	int		fd_cpy;
 	size_t	bytes_written = 0;
 
+	fd_cpy = open("woody", O_CREAT | O_WRONLY | O_TRUNC, 0755);
 	if (fd_cpy < 0)
 	{
 		dprintf(2, "Failed to create copy file\n");
 		return (EXIT_FAILURE);
 	}
+
 	while (bytes_written < woody->size)
 	{
-		printf("Writing... %zu / %zu bytes\r", bytes_written, woody->size);
 		ssize_t result = write(fd_cpy, (char *)woody->map + bytes_written, woody->size - bytes_written);
-		 if (result <= 0)
+		if (result <= 0)
 		{
 			perror("write copy file");
 			close(fd_cpy);
@@ -144,6 +145,7 @@ int	cpy_file(t_woody *woody)
 		}
 		bytes_written += result;
 	}
+
 	close(fd_cpy);
 	return (EXIT_SUCCESS);
 }
