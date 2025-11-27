@@ -5,7 +5,7 @@ static void initialize(t_woody *woody, t_woody_meta *metadata)
 	woody->fd = -1;
 	woody->size = 0;
 	woody->map = NULL;
-	bzero(&woody->st, sizeof(struct stat));
+	woody->size = 0;
 
 	metadata->text_offset = 0;
 	metadata->text_size = 0;
@@ -15,6 +15,7 @@ static void initialize(t_woody *woody, t_woody_meta *metadata)
 
 int main(int argc, char **argv)
 {
+	int				elf_h;
 	t_woody			file;
 	t_woody_meta	metadata;
 
@@ -28,6 +29,20 @@ int main(int argc, char **argv)
 
 	if (check_file_format(&file, argv[1]) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
+
+	elf_h = check_elf_header(&file);
+
+	if (elf_h == 2)
+	{
+		woody64(&file);
+	}
+	else if (elf_h == 3)
+	{
+		woody32(&file);
+	}
+	else
+		return (EXIT_FAILURE);
+
 
 	char	message[] = "This is a test [PLACEHOLDER]\n";
 	metadata.text_size = strlen(message);

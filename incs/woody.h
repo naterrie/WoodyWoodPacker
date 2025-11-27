@@ -16,7 +16,6 @@ typedef struct s_woody
 	int		fd;
 	size_t	size;
 	void	*map;
-	struct stat st;
 }	t_woody;
 
 typedef struct s_woody_meta {
@@ -27,10 +26,13 @@ typedef struct s_woody_meta {
 }	t_woody_meta;
 
 int			check_file_format(t_woody *woody, const char *filename);
+int			check_elf_header(t_woody *woody);
 void		generate_key(uint32_t key[4]);
 size_t		xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4], unsigned char *out_buff);
 void		xtea_decrypt_buff(unsigned char *buffer, size_t size, const uint32_t key[4]);
 void		stub(t_woody_meta *metadata, unsigned char *encrypted_text);
 int			ft_strlen(const char *s);
+int			woody64(t_woody	*woody);
+int			woody32(t_woody	*woody);
 
 #endif
