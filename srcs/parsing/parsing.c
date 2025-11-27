@@ -18,7 +18,7 @@ int check_file_format(t_woody *woody, const char *filename)
 		return (EXIT_FAILURE);
 	}
 
-	woody->map = mmap(NULL, woody->size, PROT_READ, MAP_PRIVATE, woody->fd, 0);
+	woody->map = mmap(NULL, woody->size, PROT_READ | PROT_WRITE, MAP_PRIVATE, woody->fd, 0);
 	if (woody->map == MAP_FAILED)
 	{
 		dprintf(2, "Memory mapping failed\n");
