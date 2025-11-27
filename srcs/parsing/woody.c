@@ -2,7 +2,6 @@
 
 int	woody64(t_woody	*woody)
 {
-	(void)woody;
 	Elf64_Ehdr	*elf_header = (Elf64_Ehdr *)woody->map;
 	Elf64_Phdr	*program_header = (Elf64_Phdr *)(woody->map + elf_header->e_phoff);
 	Elf64_Phdr	*last_phdr = NULL;
@@ -49,7 +48,7 @@ int	woody64(t_woody	*woody)
 	printf("Entry point at address: %p\n", entry_point);
 	printf("Last PT_LOAD segment ends at address: 0x%lx\n", (unsigned long)last_segment_end);
 	printf("Last program header PT_LOAD p_vaddr: 0x%lx\n\n", (unsigned long)last_phdr->p_vaddr);
-	//munmap(woody->map, woody->size);
+
 	return (EXIT_SUCCESS);
 }
 
