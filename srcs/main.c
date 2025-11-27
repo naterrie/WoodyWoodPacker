@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 
 	if (elf_h == 2)
 	{
-		woody64(&file);
+		woody64(&file, &metadata);
 	}
 	else if (elf_h == 3)
 	{
@@ -44,22 +44,14 @@ int main(int argc, char **argv)
 		return (EXIT_FAILURE);
 
 
-	char	message[] = "This is a test [PLACEHOLDER]\n";
-	metadata.text_size = strlen(message);
-
 	generate_key(metadata.key);
 	dprintf(1, "KEY: %X %X %X %X\n", metadata.key[0], metadata.key[1], metadata.key[2], metadata.key[3]);
 
-	unsigned char	encrypted_text[4096];
-	size_t	enc_size = xtea_encrypt_buff(message, metadata.text_size, metadata.key, encrypted_text);
-	dprintf(1, "Encrypted message (%zu bytes):\n", enc_size);
-	for (size_t i = 0; i < enc_size; i++)
-		printf("%02X ", encrypted_text[i]);
-	printf("\n");
+	unsigned char	*text_content = file.map + metadata.text_offset;
+	xtea_encrypt_buff(text_content, metadata.text_size, metadata.key);
 
+	stub(&metadata, text_content);
 	cpy_file(&file);
-
-	stub(&metadata, encrypted_text);
 
 	munmap(file.map, file.size);
 
