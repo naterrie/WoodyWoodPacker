@@ -157,7 +157,7 @@ int	cpy_file(t_woody *woody)
 	int		fd_cpy;
 	size_t	bytes_written = 0;
 
-	fd_cpy = open("woody", O_CREAT | O_WRONLY | O_TRUNC, 0755);
+	fd_cpy = open(FILENAME, O_CREAT | O_WRONLY | O_TRUNC, 0755);
 	if (fd_cpy < 0)
 	{
 		dprintf(2, "Failed to create copy file\n");

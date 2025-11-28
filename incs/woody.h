@@ -11,6 +11,8 @@
 # include <elf.h>
 # include <sys/stat.h>
 
+# define FILENAME "woody"
+
 extern unsigned char g_stub[];
 extern unsigned long g_stub_size;
 
