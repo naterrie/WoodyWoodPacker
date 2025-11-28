@@ -6,7 +6,7 @@
 #    By: naterrie <naterrie@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/22 11:25:01 by ffaivre           #+#    #+#              #
-#    Updated: 2025/11/28 16:33:24 by naterrie         ###   ########.fr        #
+#    Updated: 2025/11/28 16:58:25 by naterrie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,7 +42,7 @@ PRINTF = LC_NUMERIC="en_US.UTF-8" printf
 
 ############################## Rules ##########################################
 
-all:	stub $(NAME)
+all:	 $(NAME)
 
 $(NAME): $(OBJS) $(INCS)
 	@$(CC) $(CFLAGS) $^ -o $@

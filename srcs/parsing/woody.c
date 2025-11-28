@@ -63,13 +63,31 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 
 	memcpy((unsigned char *)woody->map + stub_offset, srcs_stub_stub_bin, srcs_stub_stub_bin_len);
 
-	uint64_t *p_entry = (uint64_t *)((unsigned char *)woody->map + stub_offset + srcs_stub_stub_bin_len);
+	uint64_t meta_file_off = stub_offset + srcs_stub_stub_bin_len;
+	uint64_t meta_vaddr = stub_vaddr  + srcs_stub_stub_bin_len;
+	uint64_t *imm = (uint64_t *)((unsigned char *)woody->map + stub_offset + 2);
+	*imm = meta_vaddr;
+
+	uint64_t *p_entry = (uint64_t *)((unsigned char *)woody->map + meta_file_off);
 	*p_entry = metadata->original_entrypoint;
 	printf("original_entrypoint written at file offset 0x%lx, value=0x%lx\n\n",
-			stub_offset + srcs_stub_stub_bin_len, (unsigned long)*p_entry);
+			meta_file_off, (unsigned long)*p_entry);
+
+	// set stub metadata
+	Elf64_Addr text_vaddr = text_sh->sh_addr;
+	*(uint64_t *)((unsigned char *)woody->map + meta_file_off + 8) = (uint64_t)text_vaddr;
+
+	*(uint64_t *)((unsigned char *)woody->map + meta_file_off + 16) = (uint64_t)metadata->text_size;
+
+	uint32_t *kptr = (uint32_t *)((unsigned char *)woody->map + meta_file_off + 24);
+	kptr[0] = metadata->key[0];
+	kptr[1] = metadata->key[1];
+	kptr[2] = metadata->key[2];
+	kptr[3] = metadata->key[3];
 
 	return (EXIT_SUCCESS);
 }
+
 int	woody32(t_woody *woody, t_woody_meta *metadata)
 {
 	Elf32_Ehdr	*elf_header = (Elf32_Ehdr *)woody->map;

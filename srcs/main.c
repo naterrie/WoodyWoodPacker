@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 		return (EXIT_FAILURE);
 
 	munmap(original_file.map, original_file.size);
-	
+
 	if (check_new_file_format(&new_file, FILENAME) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
 
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 	if (padding == 0)
 		padding = 0x08;
 	memset(text_content + metadata.text_size, padding, padding);
-	xtea_encrypt_buff(text_content, metadata.text_size + padding, metadata.key);
+	//xtea_encrypt_buff(text_content, metadata.text_size + padding, metadata.key);
 
 	munmap(new_file.map, new_file.size);
 

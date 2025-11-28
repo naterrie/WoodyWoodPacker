@@ -1,25 +1,25 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-typedef unsigned long   uint64_t;
-typedef unsigned int    uint32_t;
-typedef unsigned long   uintptr_t;
-typedef unsigned long   size_t;
+typedef unsigned long	uint64_t;
+typedef unsigned int	uint32_t;
+typedef unsigned long	uintptr_t;
+typedef unsigned long	size_t;
 
-typedef struct  s_stub_metadata {
-    unsigned char *text_offset;
-    size_t         text_size;
-    void          *original_entrypoint;
-    uint32_t       key[4];
-}   t_stub_metadata;
+typedef struct		s_stub_metadata {
+	unsigned char	*text_offset;
+	size_t			text_size;
+	void			*original_entrypoint;
+	uint32_t		key[4];
+}	t_stub_metadata;
 
 static t_stub_metadata metadata;
 
 void	xtea_decrypt_buff(unsigned char *buffer, size_t size, const uint32_t key[4])
 {
 	const uint32_t  delta = 0x9E3779B9;
-	uint32_t        v0, v1;
-	uint32_t        sum;
+	uint32_t		v0, v1;
+	uint32_t		sum;
 
 	size_t	padding = 8 - (size % 8);
 	if (padding == 0)
@@ -56,19 +56,19 @@ void	xtea_decrypt_buff(unsigned char *buffer, size_t size, const uint32_t key[4]
 
 }
 
-void    stub(void)
+void	stub(void)
 {
-    if (write(1, "....WOODY....\n", 14) == -1)
+	if (write(1, "....WOODY....\n", 14) == -1)
 		return ;
 
-    size_t pagesize = sysconf(_SC_PAGE_SIZE);
-    uintptr_t text_addr = (uintptr_t)metadata.text_offset;
-    uintptr_t aligned_addr = text_addr & ~(pagesize - 1);
-    size_t aligned_size = ((metadata.text_size + pagesize - 1) / pagesize) * pagesize;
+	size_t pagesize = sysconf(_SC_PAGE_SIZE);
+	uintptr_t text_addr = (uintptr_t)metadata.text_offset;
+	uintptr_t aligned_addr = text_addr & ~(pagesize - 1);
+	size_t aligned_size = ((metadata.text_size + pagesize - 1) / pagesize) * pagesize;
 
-    mprotect((void*)aligned_addr, aligned_size, PROT_READ | PROT_WRITE | PROT_EXEC);
+	mprotect((void*)aligned_addr, aligned_size, PROT_READ | PROT_WRITE | PROT_EXEC);
 
-    xtea_decrypt_buff((unsigned char *)text_addr, metadata.text_size, metadata.key);
+	xtea_decrypt_buff((unsigned char *)text_addr, metadata.text_size, metadata.key);
 
-    ((void(*)()) metadata.original_entrypoint)();
+	((void(*)()) metadata.original_entrypoint)();
 }
