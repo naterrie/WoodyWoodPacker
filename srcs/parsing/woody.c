@@ -49,7 +49,9 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 	metadata->original_entrypoint = elf_header->e_entry;
 
 	unsigned long	stub_offset = last_phdr->p_offset + last_phdr->p_filesz;
-	unsigned long	stub_vaddr = last_phdr->p_vaddr + last_phdr->p_memsz;
+	unsigned long	stub_vaddr = last_phdr->p_vaddr + (stub_offset - last_phdr->p_offset);
+	printf("stub vaddr=0x%lx = 0x%lx + 0x%lx\n", (unsigned long)stub_vaddr, (unsigned long)last_phdr->p_vaddr, (unsigned long)last_phdr->p_memsz);
+
 
 	printf("last PT_LOAD: p_offset=0x%lx p_vaddr=0x%lx p_filesz=0x%lx p_memsz=0x%lx\n",
 			(unsigned long)last_phdr->p_offset,
