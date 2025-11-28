@@ -11,6 +11,9 @@
 # include <elf.h>
 # include <sys/stat.h>
 
+extern unsigned char g_stub[];
+extern unsigned long g_stub_size;
+
 typedef struct s_woody
 {
 	int		fd;

@@ -48,19 +48,29 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 	unsigned long	stub_offset = last_phdr->p_offset + last_phdr->p_filesz;
 	unsigned long	stub_vaddr = last_phdr->p_vaddr + last_phdr->p_memsz;
 
-	(void)stub_offset;
-	(void)stub_vaddr;
-	// elf_header->e_entry = stub_vaddr
-	// need to update last_phdr size to include stub
+	printf("last PT_LOAD: p_offset=0x%lx p_vaddr=0x%lx p_filesz=0x%lx p_memsz=0x%lx\n",
+			(unsigned long)last_phdr->p_offset,
+			(unsigned long)last_phdr->p_vaddr,
+			(unsigned long)last_phdr->p_filesz,
+			(unsigned long)last_phdr->p_memsz);
+	printf("stub_offset=0x%lx stub_vaddr=0x%lx (g_stub_size=%lu)\n",
+			stub_offset, stub_vaddr, g_stub_size);
 
-	// last_phdr->p_filesz +=
-	// last_phdr->p_memsz +=
+	last_phdr->p_filesz += g_stub_size + sizeof(uint64_t);
+	last_phdr->p_memsz  += g_stub_size + sizeof(uint64_t);
 
-	// memcpy(woody->map + stub_offset, stubptr, stubsize);
+	elf_header->e_entry = stub_vaddr;
+	printf("new e_entry = 0x%lx\n", (unsigned long)elf_header->e_entry);
+
+	memcpy((unsigned char *)woody->map + stub_offset, g_stub, g_stub_size);
+
+	uint64_t *p_entry = (uint64_t *)((unsigned char *)woody->map + stub_offset + g_stub_size);
+	*p_entry = metadata->original_entrypoint;
+	printf("original_entrypoint written at file offset 0x%lx, value=0x%lx\n",
+			stub_offset + g_stub_size, (unsigned long)*p_entry);
 
 	return (EXIT_SUCCESS);
 }
-
 int	woody32(t_woody *woody, t_woody_meta *metadata)
 {
 	Elf32_Ehdr	*elf_header = (Elf32_Ehdr *)woody->map;
@@ -101,6 +111,11 @@ int	woody32(t_woody *woody, t_woody_meta *metadata)
 			}
 		}
 	}
+	if (!last_phdr)
+	{
+		dprintf(2, "Failed to find last loadable segment\n");
+		return (EXIT_FAILURE);
+	}
 
 	metadata->text_offset = text_sh->sh_offset;
 	metadata->text_size = text_sh->sh_size;
@@ -109,15 +124,27 @@ int	woody32(t_woody *woody, t_woody_meta *metadata)
 	unsigned long	stub_offset = last_phdr->p_offset + last_phdr->p_filesz;
 	unsigned long	stub_vaddr = last_phdr->p_vaddr + last_phdr->p_memsz;
 
-	(void)stub_offset;
-	(void)stub_vaddr;
-	// elf_header->e_entry = stub_vaddr
-	// need to update last_phdr size to include stub
 
-	// last_phdr->p_filesz +=
-	// last_phdr->p_memsz +=
+	printf("last PT_LOAD: p_offset=0x%lx p_vaddr=0x%lx p_filesz=0x%lx p_memsz=0x%lx\n",
+			(unsigned long)last_phdr->p_offset,
+			(unsigned long)last_phdr->p_vaddr,
+			(unsigned long)last_phdr->p_filesz,
+			(unsigned long)last_phdr->p_memsz);
+	printf("stub_offset=0x%lx stub_vaddr=0x%lx (g_stub_size=%lu)\n",
+			stub_offset, stub_vaddr, g_stub_size);
 
-	// memcpy(woody->map + stub_offset, stubptr, stubsize);
+	last_phdr->p_filesz += g_stub_size + sizeof(uint64_t);
+	last_phdr->p_memsz  += g_stub_size + sizeof(uint64_t);
+
+	elf_header->e_entry = stub_vaddr;
+	printf("new e_entry = 0x%lx\n", (unsigned long)elf_header->e_entry);
+
+	memcpy((unsigned char *)woody->map + stub_offset, g_stub, g_stub_size);
+
+	uint64_t *p_entry = (uint64_t *)((unsigned char *)woody->map + stub_offset + g_stub_size);
+	*p_entry = metadata->original_entrypoint;
+	printf("original_entrypoint written at file offset 0x%lx, value=0x%lx\n",
+			stub_offset + g_stub_size, (unsigned long)*p_entry);
 
 	return (EXIT_SUCCESS);
 }

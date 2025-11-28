@@ -6,7 +6,7 @@
 #    By: naterrie <naterrie@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/22 11:25:01 by ffaivre           #+#    #+#              #
-#    Updated: 2025/11/25 14:54:32 by naterrie         ###   ########.fr        #
+#    Updated: 2025/11/28 10:05:08 by naterrie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,8 @@ LST_SRCS 		:=	main.c \
 					parsing/parsing.c \
 					parsing/woody.c \
 					encrypt/xtea.c \
-					stub/stub.c
+					stub/stub.c \
+					stub/stub_bytes.c
 
 LST_OBJS		:=	$(LST_SRCS:.c=.o)
 
