@@ -40,13 +40,12 @@ int main(int argc, char **argv)
 
 	if (cpy_file(&original_file) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
-	
+
 	munmap(original_file.map, original_file.size);
 	
-
 	if (check_new_file_format(&new_file, FILENAME) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
-	
+
 	if (elf_h == 2)
 	{
 		woody64(&new_file, &metadata);

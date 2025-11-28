@@ -6,7 +6,7 @@
 #    By: naterrie <naterrie@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/22 11:25:01 by ffaivre           #+#    #+#              #
-#    Updated: 2025/11/28 12:49:55 by naterrie         ###   ########.fr        #
+#    Updated: 2025/11/28 16:33:24 by naterrie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -83,6 +83,7 @@ stub:
 	@objcopy -O binary srcs/stub/stub.o srcs/stub/stub.bin
 	@xxd -i srcs/stub/stub.bin > srcs/stub/stub_bytes.c
 	@rm srcs/stub/stub.o srcs/stub/stub.bin
+	@echo "$(__GREEN)Stub compiled!$(_WHITE)"
 
 .PHONY: all clean fclean re git
 

@@ -47,8 +47,6 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 
 	unsigned long	stub_offset = last_phdr->p_offset + last_phdr->p_filesz;
 	unsigned long	stub_vaddr = last_phdr->p_vaddr + (stub_offset - last_phdr->p_offset);
-	printf("stub vaddr=0x%lx = 0x%lx + 0x%lx\n", (unsigned long)stub_vaddr, (unsigned long)last_phdr->p_vaddr, (unsigned long)last_phdr->p_memsz);
-
 
 	printf("last PT_LOAD: p_offset=0x%lx p_vaddr=0x%lx p_filesz=0x%lx p_memsz=0x%lx\n",
 			(unsigned long)last_phdr->p_offset,
@@ -62,13 +60,12 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 	last_phdr->p_memsz  += srcs_stub_stub_bin_len + sizeof(uint64_t);
 
 	elf_header->e_entry = stub_vaddr;
-	printf("new e_entry = 0x%lx\n", (unsigned long)elf_header->e_entry);
 
 	memcpy((unsigned char *)woody->map + stub_offset, srcs_stub_stub_bin, srcs_stub_stub_bin_len);
 
 	uint64_t *p_entry = (uint64_t *)((unsigned char *)woody->map + stub_offset + srcs_stub_stub_bin_len);
 	*p_entry = metadata->original_entrypoint;
-	printf("original_entrypoint written at file offset 0x%lx, value=0x%lx\n",
+	printf("original_entrypoint written at file offset 0x%lx, value=0x%lx\n\n",
 			stub_offset + srcs_stub_stub_bin_len, (unsigned long)*p_entry);
 
 	return (EXIT_SUCCESS);

@@ -58,7 +58,8 @@ void	xtea_decrypt_buff(unsigned char *buffer, size_t size, const uint32_t key[4]
 
 void    stub(void)
 {
-    write(1, "....WOODY....\n", 14);
+    if (write(1, "....WOODY....\n", 14) == -1)
+		return ;
 
     size_t pagesize = sysconf(_SC_PAGE_SIZE);
     uintptr_t text_addr = (uintptr_t)metadata.text_offset;
