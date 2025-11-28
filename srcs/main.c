@@ -68,5 +68,7 @@ int main(int argc, char **argv)
 	memset(text_content + metadata.text_size, padding, padding);
 	xtea_encrypt_buff(text_content, metadata.text_size + padding, metadata.key);
 
+	munmap(new_file.map, new_file.size);
+
 	return (EXIT_SUCCESS);
 }
