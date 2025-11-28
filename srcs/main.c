@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (check_file_format(&original_file, argv[1]) != EXIT_SUCCESS)
+	if (check_original_file_format(&original_file, argv[1]) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
 
 	elf_h = check_elf_header(&original_file);
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 	munmap(original_file.map, original_file.size);
 	
 
-	if (check_file_format(&new_file, FILENAME) != EXIT_SUCCESS)
+	if (check_new_file_format(&new_file, FILENAME) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
 	
 	if (elf_h == 2)

@@ -30,7 +30,8 @@ typedef struct	s_woody_meta {
 	uint32_t	key[4];
 }	t_woody_meta;
 
-int			check_file_format(t_woody *woody, const char *filename);
+int			check_original_file_format(t_woody *woody, const char *filename);
+int			check_new_file_format(t_woody *woody, const char *filename);
 int			check_elf_header(t_woody *woody);
 void		generate_key(uint32_t key[4]);
 void		xtea_encrypt_buff(void *buffer, size_t size, const uint32_t key[4]);
