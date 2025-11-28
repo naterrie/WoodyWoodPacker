@@ -41,6 +41,9 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 		}
 	}
 
+	last_phdr->p_flags |= PF_W;
+	last_phdr->p_flags |= PF_X;
+
 	metadata->text_offset = text_sh->sh_offset;
 	metadata->text_size = text_sh->sh_size;
 	metadata->original_entrypoint = elf_header->e_entry;
