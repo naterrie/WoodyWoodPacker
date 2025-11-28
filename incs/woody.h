@@ -13,8 +13,8 @@
 
 # define FILENAME "woody"
 
-extern unsigned char g_stub[];
-extern unsigned long g_stub_size;
+extern unsigned char srcs_stub_stub_bin[];
+extern unsigned long srcs_stub_stub_bin_len;
 
 typedef struct s_woody
 {

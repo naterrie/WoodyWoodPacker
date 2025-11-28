@@ -6,7 +6,7 @@
 #    By: naterrie <naterrie@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/22 11:25:01 by ffaivre           #+#    #+#              #
-#    Updated: 2025/11/28 10:05:08 by naterrie         ###   ########.fr        #
+#    Updated: 2025/11/28 11:34:17 by naterrie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -76,6 +76,12 @@ git: fclean
 		git commit -m "$(word 2,$(MAKECMDGOALS))" || echo "Nothing to commit"; \
 	fi
 	git push
+
+stub: all
+	gcc -c -fPIC -nostdlib -Os srcs/stub/stub.c -o srcs/stub/stub.o
+	objcopy -O binary srcs/stub/stub.o srcs/stub/stub.bin
+	xxd -i srcs/stub/stub.bin > srcs/stub/stub_bytes.c
+	rm srcs/stub/stub.o srcs/stub/stub.bin
 
 .PHONY: all clean fclean re git
 

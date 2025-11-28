@@ -52,15 +52,16 @@ void	xtea_decrypt_buff(unsigned char *buffer, size_t size, const uint32_t key[4]
 
 	for (size_t i = 0; i < padding; i++)
 		buffer[size - 1 - i] = 0x90;
-    
+
 }
 
 void    stub(void)
 {
-    write(1, "....WOODY....\n", 14);
+    if (write(1, "....WOODY....\n", 14) == -1)
+        return;
 
     mprotect(metadata.text_offset, metadata.text_size, PROT_READ | PROT_WRITE | PROT_EXEC);
-    
+
     xtea_decrypt_buff((unsigned char *)metadata.text_offset, metadata.text_size, metadata.key);
 
     ((void(*)()) metadata.original_entrypoint)();
