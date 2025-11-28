@@ -1,9 +1,10 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-typedef unsigned long  uint64_t;
-typedef unsigned int   uint32_t;
-typedef unsigned long  size_t;
+typedef unsigned long   uint64_t;
+typedef unsigned int    uint32_t;
+typedef unsigned long   uintptr_t;
+typedef unsigned long   size_t;
 
 typedef struct  s_stub_metadata {
     unsigned char *text_offset;
@@ -57,12 +58,16 @@ void	xtea_decrypt_buff(unsigned char *buffer, size_t size, const uint32_t key[4]
 
 void    stub(void)
 {
-    if (write(1, "....WOODY....\n", 14) == -1)
-        return;
+    write(1, "....WOODY....\n", 14);
 
-    mprotect(metadata.text_offset, metadata.text_size, PROT_READ | PROT_WRITE | PROT_EXEC);
+    size_t pagesize = sysconf(_SC_PAGE_SIZE);
+    uintptr_t text_addr = (uintptr_t)metadata.text_offset;
+    uintptr_t aligned_addr = text_addr & ~(pagesize - 1);
+    size_t aligned_size = ((metadata.text_size + pagesize - 1) / pagesize) * pagesize;
 
-    xtea_decrypt_buff((unsigned char *)metadata.text_offset, metadata.text_size, metadata.key);
+    mprotect((void*)aligned_addr, aligned_size, PROT_READ | PROT_WRITE | PROT_EXEC);
+
+    xtea_decrypt_buff((unsigned char *)text_addr, metadata.text_size, metadata.key);
 
     ((void(*)()) metadata.original_entrypoint)();
 }

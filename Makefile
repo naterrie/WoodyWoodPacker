@@ -42,7 +42,7 @@ PRINTF = LC_NUMERIC="en_US.UTF-8" printf
 
 ############################## Rules ##########################################
 
-all:	$(NAME) stub
+all:	stub $(NAME)
 
 $(NAME): $(OBJS) $(INCS)
 	@$(CC) $(CFLAGS) $^ -o $@

@@ -30,7 +30,7 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 
 	for (int i = 0; i < elf_header->e_phnum; i++)
 	{
-		if (program_header[i].p_type == PT_LOAD)
+		if (program_header[i].p_type == PT_LOAD  && (program_header[i].p_flags & PF_X))
 		{
 			Elf64_Addr segment_end = program_header[i].p_vaddr + program_header[i].p_memsz;
 			if (segment_end > last_segment_end)
@@ -40,9 +40,6 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 			}
 		}
 	}
-
-	last_phdr->p_flags |= PF_W;
-	last_phdr->p_flags |= PF_X;
 
 	metadata->text_offset = text_sh->sh_offset;
 	metadata->text_size = text_sh->sh_size;
