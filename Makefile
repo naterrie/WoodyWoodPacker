@@ -6,7 +6,7 @@
 #    By: naterrie <naterrie@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/22 11:25:01 by ffaivre           #+#    #+#              #
-#    Updated: 2025/11/28 12:46:05 by naterrie         ###   ########.fr        #
+#    Updated: 2025/11/28 12:49:55 by naterrie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -59,6 +59,7 @@ $(DIR_OBJS):
 clean:
 	@$(PRINTF) "$(_GREEN)Cleaning up object files in $(DIR_OBJS)...$(_WHITE)\n"
 	@rm -rf $(DIR_OBJS)
+	@rm woody
 
 fclean: clean
 	@$(PRINTF) "$(_YELLOW)Removing $(NAME)$(_WHITE)\n"
