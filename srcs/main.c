@@ -42,7 +42,9 @@ int main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	
 	munmap(original_file.map, original_file.size);
-	
+
+	generate_key(metadata.key);
+	dprintf(1, "KEY: %X %X %X %X\n", metadata.key[0], metadata.key[1], metadata.key[2], metadata.key[3]);
 
 	if (check_new_file_format(&new_file, FILENAME) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
@@ -57,9 +59,6 @@ int main(int argc, char **argv)
 	}
 	else
 		return (EXIT_FAILURE);
-
-	generate_key(metadata.key);
-	dprintf(1, "KEY: %X %X %X %X\n", metadata.key[0], metadata.key[1], metadata.key[2], metadata.key[3]);
 
 	unsigned char	*text_content = new_file.map + metadata.text_offset;
 	size_t	padding = 8 - (metadata.text_size % 8);

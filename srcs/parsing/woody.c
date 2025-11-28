@@ -41,7 +41,13 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 		}
 	}
 
-	metadata->text_offset = text_sh->sh_offset;
+	if (!last_phdr)
+    {
+        dprintf(2, "Failed to find last executable PT_LOAD\n");
+        return EXIT_FAILURE;
+    }
+
+	metadata->text_offset = text_sh->sh_addr;
 	metadata->text_size = text_sh->sh_size;
 	metadata->original_entrypoint = elf_header->e_entry;
 
@@ -66,13 +72,31 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 
 	memcpy((unsigned char *)woody->map + stub_offset, srcs_stub_stub_bin, srcs_stub_stub_bin_len);
 
-	uint64_t *p_entry = (uint64_t *)((unsigned char *)woody->map + stub_offset + srcs_stub_stub_bin_len);
-	*p_entry = metadata->original_entrypoint;
-	printf("original_entrypoint written at file offset 0x%lx, value=0x%lx\n",
-			stub_offset + srcs_stub_stub_bin_len, (unsigned long)*p_entry);
+	unsigned char *p_entry = (unsigned char *)woody->map + stub_offset + srcs_stub_stub_bin_len;
+	*(uint64_t *)(p_entry + 0)  = metadata->text_offset;
+	*(uint64_t *)(p_entry + 8)  = metadata->text_size;
+	*(uint64_t *)(p_entry + 16) = metadata->original_entrypoint;
+	for (int i = 0; i < 4; i++)
+	    *(uint32_t *)(p_entry + 24 + i*4) = metadata->key[i];
+
+
+	printf("\nText offset written at file offset 0x%lx, value=0x%lx\n",
+			stub_offset + srcs_stub_stub_bin_len + 0, (unsigned long)*(uint64_t *)(p_entry + 0));
+	printf("Text size written at file offset 0x%lx, value=0x%lx\n",
+			stub_offset + srcs_stub_stub_bin_len + 8, (unsigned long)*(uint64_t *)(p_entry + 8));
+	printf("Original entrypoint written at file offset 0x%lx, value=0x%lx\n",
+			stub_offset + srcs_stub_stub_bin_len + 16, (unsigned long)*(uint64_t *)(p_entry + 16));
+	for (int i = 0; i < 4; i++)
+	{
+		printf("Key[%d] written at file offset 0x%lx, value=0x%08x\n",
+			i,
+			stub_offset + srcs_stub_stub_bin_len + 24 + i*4,
+			*(uint32_t *)(p_entry + 24 + i*4));
+	}
 
 	return (EXIT_SUCCESS);
 }
+
 int	woody32(t_woody *woody, t_woody_meta *metadata)
 {
 	Elf32_Ehdr	*elf_header = (Elf32_Ehdr *)woody->map;
