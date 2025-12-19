@@ -48,8 +48,6 @@ int main(int ac, char **av)
 	if (check_file_format(&original_file, O_RDONLY, PROT_READ, MAP_PRIVATE) != EXIT_SUCCESS)
 		return (cleanup(&original_file, &new_file, EXIT_FAILURE));
 
-	elf_h = check_elf_header(&original_file);
-
 	if (cpy_file(&original_file) != EXIT_SUCCESS)
 		return (cleanup(&original_file, &new_file, EXIT_FAILURE));
 	
@@ -59,11 +57,12 @@ int main(int ac, char **av)
 	if (check_file_format(&new_file, O_RDWR, PROT_READ | PROT_WRITE, MAP_SHARED) != EXIT_SUCCESS)
 		return (cleanup(&original_file, &new_file, EXIT_FAILURE));
 	
-	if (elf_h == 2)
+	elf_h = check_elf_header(&original_file);
+	if (elf_h == ELFCLASS64)
 	{
 		woody64(&new_file, &metadata);
 	}
-	else if (elf_h == 3)
+	else if (elf_h == ELFCLASS32)
 	{
 		woody32(&new_file, &metadata);
 	}
@@ -71,9 +70,7 @@ int main(int ac, char **av)
 		return (cleanup(&original_file, &new_file, EXIT_FAILURE));
 
 	unsigned char	*text_content = new_file.map + metadata.text_offset;
-	size_t	padding = metadata.text_size % 8;
-	if (padding == 0)
-		padding = 0x08;
+	size_t	padding = 8 - (metadata.text_size % 8);
 	memset(text_content + metadata.text_size, padding, padding);
 	xtea_encrypt_buff(text_content, metadata.text_size + padding, metadata.key);
 

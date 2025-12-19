@@ -15,6 +15,7 @@ int	check_file_format(t_file *file, int open_flags, int mmap_prot, int mmap_flag
 	if (file->size == (size_t)-1)
 	{
 		dprintf(2, "Couldn't determine file size\n");
+		close(file->fd);
 		return (EXIT_FAILURE);
 	}
 
@@ -22,8 +23,10 @@ int	check_file_format(t_file *file, int open_flags, int mmap_prot, int mmap_flag
 	if (file->map == MAP_FAILED)
 	{
 		dprintf(2, "Memory mapping failed\n");
+		close(file->fd);
 		return (EXIT_FAILURE);
 	}
+
 	close(file->fd);
 
 	map = (char *)file->map;
@@ -55,30 +58,30 @@ int	check_elf_header(t_file *file)
 		if (elf_header->e_version != EV_CURRENT)
 		{
 			dprintf(2, "Invalid ELF version\n");
-			return (EXIT_FAILURE);
+			return (-1);
 		}
 
 		if (elf_header->e_type != ET_EXEC && elf_header->e_type != ET_DYN)
 		{
 			dprintf(2, "Not an executable file\n");
-			return (EXIT_FAILURE);
+			return (-1);
 		}
 		if (elf_header->e_machine != EM_X86_64)
 		{
 			dprintf(2, "Unsupported architecture\n");
-			return (EXIT_FAILURE);
+			return (-1);
 		}
 
 		if (elf_header->e_shoff >= (Elf64_Off)file->size)
 		{
 			dprintf(2, "Invalid section header offset\n");
-			return (EXIT_FAILURE);
+			return (-1);
 		}
 
 		if (elf_header->e_phoff >= (Elf64_Off)file->size)
 		{
 			dprintf(2, "Invalid program header offset\n");
-			return (EXIT_FAILURE);
+			return (-1);
 		}
 	}
 	else if (map[EI_CLASS] == ELFCLASS32)
@@ -88,37 +91,37 @@ int	check_elf_header(t_file *file)
 		if (elf_header->e_version != EV_CURRENT)
 		{
 			dprintf(2, "Invalid ELF version\n");
-			return (EXIT_FAILURE);
+			return (-1);
 		}
 
 		if (elf_header->e_type != ET_EXEC && elf_header->e_type != ET_DYN)
 		{
 			dprintf(2, "Not an executable file\n");
-			return (EXIT_FAILURE);
+			return (-1);
 		}
 
 		if (elf_header->e_machine != EM_386)
 		{
 			dprintf(2, "Unsupported architecture\n");
-			return (EXIT_FAILURE);
+			return (-1);
 		}
 
 		if (elf_header->e_shoff >= (Elf32_Off)file->size)
 		{
 			dprintf(2, "Invalid section header offset\n");
-			return (EXIT_FAILURE);
+			return (-1);
 		}
 
 		if (elf_header->e_phoff >= (Elf32_Off)file->size)
 		{
 			dprintf(2, "Invalid program header offset\n");
-			return (EXIT_FAILURE);
+			return (-1);
 		}
 	}
 	else
 	{
 		dprintf(2, "Unknown ELF class\n");
-		return (EXIT_FAILURE);
+		return (-1);
 	}
 	return map[EI_CLASS];
 }
