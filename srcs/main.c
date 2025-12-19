@@ -60,7 +60,7 @@ int main(int ac, char **av)
 	elf_h = check_elf_header(&original_file);
 	if (elf_h == ELFCLASS64)
 	{
-	    if (analyze_file64(&original_file, &metadata) != EXIT_SUCCESS)
+	    if (analyze_elf64(&original_file, &metadata) != EXIT_SUCCESS)
 	        return (cleanup(&original_file, &new_file, EXIT_FAILURE));
 	}
 	else if (elf_h == ELFCLASS32)
@@ -88,6 +88,9 @@ int main(int ac, char **av)
 
 	if (check_file_format(&new_file, O_RDWR, PROT_READ | PROT_WRITE, MAP_SHARED) != EXIT_SUCCESS)
 		return (cleanup(&original_file, &new_file, EXIT_FAILURE));
+
+	if (patch_elf64(&new_file, &metadata) != EXIT_SUCCESS)
+    	return (cleanup(&original_file, &new_file, EXIT_FAILURE));
 
 	return(cleanup(&original_file, &new_file, EXIT_SUCCESS));
 }

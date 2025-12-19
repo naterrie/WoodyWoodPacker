@@ -1,6 +1,6 @@
 #include "woody.h"
 
-int	analyze_file64(t_file	*file, t_file_meta *metadata)
+int	analyze_elf64(t_file	*file, t_file_meta *metadata)
 {
 	Elf64_Ehdr	*elf_header = (Elf64_Ehdr *)file->map;
 	Elf64_Phdr	*program_header = (Elf64_Phdr *)(file->map + elf_header->e_phoff);
@@ -55,6 +55,49 @@ int	analyze_file64(t_file	*file, t_file_meta *metadata)
 	metadata->stub_vaddr  = last_phdr->p_vaddr + last_phdr->p_memsz;
 
 	return (EXIT_SUCCESS);
+}
+
+int patch_elf64(t_file *file, t_file_meta *metadata)
+{
+    Elf64_Ehdr  *ehdr;
+    Elf64_Phdr  *phdr;
+    Elf64_Phdr  *last_rx = NULL;
+    Elf64_Addr   last_end = 0;
+
+    ehdr = (Elf64_Ehdr *)file->map;
+    phdr = (Elf64_Phdr *)((char *)file->map + ehdr->e_phoff);
+
+    for (int i = 0; i < ehdr->e_phnum; i++)
+    {
+        if (phdr[i].p_type == PT_LOAD &&
+            (phdr[i].p_flags & PF_X))
+        {
+            Elf64_Addr end = phdr[i].p_vaddr + phdr[i].p_memsz;
+            if (end > last_end)
+            {
+                last_end = end;
+                last_rx = &phdr[i];
+            }
+        }
+    }
+
+    if (!last_rx)
+    {
+        dprintf(2, "patch_elf64: no executable PT_LOAD found\n");
+        return (EXIT_FAILURE);
+    }
+
+    last_rx->p_filesz += metadata->stub_size;
+    last_rx->p_memsz  += metadata->stub_size;
+
+    ehdr->e_entry = metadata->stub_vaddr;
+
+    printf("PATCH ELF64:\n");
+    printf("  new p_filesz: 0x%lx\n", (unsigned long)last_rx->p_filesz);
+    printf("  new p_memsz : 0x%lx\n", (unsigned long)last_rx->p_memsz);
+    printf("  new e_entry : 0x%lx\n", (unsigned long)ehdr->e_entry);
+
+    return (EXIT_SUCCESS);
 }
 
 int	woody32(t_file *file, t_file_meta *metadata)

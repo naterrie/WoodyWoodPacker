@@ -46,7 +46,8 @@ int			cpy_file(t_file *original_file, t_file *new_file, size_t final_size);
 
 /* elf */
 int			check_elf_header(t_file *file);
-int			analyze_file64(t_file	*file, t_file_meta *metadata);
+int			analyze_elf64(t_file	*file, t_file_meta *metadata);
+int			patch_elf64(t_file *file, t_file_meta *metadata);
 int			woody32(t_file	*file, t_file_meta *metadata);
 
 /* crypto */
