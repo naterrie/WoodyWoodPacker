@@ -32,8 +32,7 @@ typedef struct	s_file_meta {
 }	t_file_meta;
 
 /* file */
-int			check_original_file_format(t_file *original_file);
-int			check_new_file_format(t_file *new_file);
+int			check_file_format(t_file *file, int open_flags, int mmap_prot, int mmap_flags);
 int			cpy_file(t_file *file);
 
 /* elf */
