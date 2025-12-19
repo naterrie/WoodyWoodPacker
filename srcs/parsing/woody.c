@@ -1,15 +1,15 @@
 #include "woody.h"
 
-int	woody64(t_file	*woody, t_file_meta *metadata)
+int	analyze_file64(t_file	*file, t_file_meta *metadata)
 {
-	Elf64_Ehdr	*elf_header = (Elf64_Ehdr *)woody->map;
-	Elf64_Phdr	*program_header = (Elf64_Phdr *)(woody->map + elf_header->e_phoff);
+	Elf64_Ehdr	*elf_header = (Elf64_Ehdr *)file->map;
+	Elf64_Phdr	*program_header = (Elf64_Phdr *)(file->map + elf_header->e_phoff);
 	Elf64_Phdr	*last_phdr = NULL;
 	Elf64_Addr	last_segment_end = 0;
 
-	Elf64_Shdr	*section_header = (Elf64_Shdr *)(woody->map + elf_header->e_shoff);
+	Elf64_Shdr	*section_header = (Elf64_Shdr *)(file->map + elf_header->e_shoff);
 	Elf64_Shdr	*sh_strtab = &section_header[elf_header->e_shstrndx];
-	const char	*sh_strtab_p = woody->map + sh_strtab->sh_offset;
+	const char	*sh_strtab_p = file->map + sh_strtab->sh_offset;
 	Elf64_Shdr	*text_sh = NULL;
 
 	for (int i = 0; i < elf_header->e_shnum; i++)
@@ -44,162 +44,61 @@ int	woody64(t_file	*woody, t_file_meta *metadata)
 	if (!last_phdr)
     {
         dprintf(2, "Failed to find last executable PT_LOAD\n");
-        return EXIT_FAILURE;
+        return (EXIT_FAILURE);
     }
 
-	metadata->text_offset = text_sh->sh_addr;
-	metadata->text_size = text_sh->sh_size;
-	metadata->original_entrypoint = elf_header->e_entry;
-
-	unsigned long	stub_offset = last_phdr->p_offset + last_phdr->p_filesz;
-	unsigned long	stub_vaddr = last_phdr->p_vaddr + (stub_offset - last_phdr->p_offset);
-	printf("stub vaddr=0x%lx = 0x%lx + 0x%lx\n", (unsigned long)stub_vaddr, (unsigned long)last_phdr->p_vaddr, (unsigned long)last_phdr->p_memsz);
-
-
-	printf("last PT_LOAD: p_offset=0x%lx p_vaddr=0x%lx p_filesz=0x%lx p_memsz=0x%lx\n",
-			(unsigned long)last_phdr->p_offset,
-			(unsigned long)last_phdr->p_vaddr,
-			(unsigned long)last_phdr->p_filesz,
-			(unsigned long)last_phdr->p_memsz);
-	printf("stub_offset=0x%lx stub_vaddr=0x%lx (srcs_stub_stub_bin_len=%lu)\n",
-			stub_offset, stub_vaddr, srcs_stub_stub_bin_len);
-
-	last_phdr->p_filesz += srcs_stub_stub_bin_len + sizeof(uint64_t);
-	last_phdr->p_memsz  += srcs_stub_stub_bin_len + sizeof(uint64_t);
-
-	elf_header->e_entry = stub_vaddr;
-	printf("new e_entry = 0x%lx\n", (unsigned long)elf_header->e_entry);
-
-	memcpy((unsigned char *)woody->map + stub_offset, srcs_stub_stub_bin, srcs_stub_stub_bin_len);
-
-	unsigned char *p_entry = (unsigned char *)woody->map + stub_offset + srcs_stub_stub_bin_len;
-	*(uint64_t *)(p_entry + 0)  = metadata->text_offset;
-	*(uint64_t *)(p_entry + 8)  = metadata->text_size;
-	*(uint64_t *)(p_entry + 16) = metadata->original_entrypoint;
-	for (int i = 0; i < 4; i++)
-	    *(uint32_t *)(p_entry + 24 + i*4) = metadata->key[i];
-
-
-	printf("\nText offset written at file offset 0x%lx, value=0x%lx\n",
-			stub_offset + srcs_stub_stub_bin_len + 0, (unsigned long)*(uint64_t *)(p_entry + 0));
-	printf("Text size written at file offset 0x%lx, value=0x%lx\n",
-			stub_offset + srcs_stub_stub_bin_len + 8, (unsigned long)*(uint64_t *)(p_entry + 8));
-	printf("Original entrypoint written at file offset 0x%lx, value=0x%lx\n",
-			stub_offset + srcs_stub_stub_bin_len + 16, (unsigned long)*(uint64_t *)(p_entry + 16));
-	for (int i = 0; i < 4; i++)
-	{
-		printf("Key[%d] written at file offset 0x%lx, value=0x%08x\n",
-			i,
-			stub_offset + srcs_stub_stub_bin_len + 24 + i*4,
-			*(uint32_t *)(p_entry + 24 + i*4));
-	}
-
-	return (EXIT_SUCCESS);
-}
-
-int	woody32(t_file *woody, t_file_meta *metadata)
-{
-	Elf32_Ehdr	*elf_header = (Elf32_Ehdr *)woody->map;
-	Elf32_Phdr	*program_header = (Elf32_Phdr *)(woody->map + elf_header->e_phoff);
-	Elf32_Phdr	*last_phdr = NULL;
-	Elf32_Addr	last_segment_end = 0;
-
-	Elf32_Shdr	*section_header = (Elf32_Shdr *)(woody->map + elf_header->e_shoff);
-	Elf32_Shdr	*sh_strtab = &section_header[elf_header->e_shstrndx];
-	const char	*sh_strtab_p = woody->map + sh_strtab->sh_offset;
-	Elf32_Shdr	*text_sh = NULL;
-
-	for (int i = 0; i < elf_header->e_shnum; i++)
-	{
-		const char *name = sh_strtab_p + section_header[i].sh_name;
-		if (strcmp(name, ".text") == 0)
-		{
-			text_sh = &section_header[i];
-			break;
-		}
-	}
-
-	if (!text_sh)
-	{
-		dprintf(2, "Failed to find .text section\n");
-		return (EXIT_FAILURE);
-	}
-
-	for (int i = 0; i < elf_header->e_phnum; i++)
-	{
-		if (program_header[i].p_type == PT_LOAD)
-		{
-			Elf32_Addr segment_end = program_header[i].p_vaddr + program_header[i].p_memsz;
-			if (segment_end > last_segment_end)
-			{
-				last_segment_end = segment_end;
-				last_phdr = &program_header[i];
-			}
-		}
-	}
-	if (!last_phdr)
-	{
-		dprintf(2, "Failed to find last loadable segment\n");
-		return (EXIT_FAILURE);
-	}
-
 	metadata->text_offset = text_sh->sh_offset;
+	metadata->text_vaddr = text_sh->sh_addr;
 	metadata->text_size = text_sh->sh_size;
 	metadata->original_entrypoint = elf_header->e_entry;
-
-	unsigned long	stub_offset = last_phdr->p_offset + last_phdr->p_filesz;
-	unsigned long	stub_vaddr = last_phdr->p_vaddr + last_phdr->p_memsz;
-
-
-	printf("last PT_LOAD: p_offset=0x%lx p_vaddr=0x%lx p_filesz=0x%lx p_memsz=0x%lx\n",
-			(unsigned long)last_phdr->p_offset,
-			(unsigned long)last_phdr->p_vaddr,
-			(unsigned long)last_phdr->p_filesz,
-			(unsigned long)last_phdr->p_memsz);
-	printf("stub_offset=0x%lx stub_vaddr=0x%lx (srcs_stub_stub_bin_len=%lu)\n",
-			stub_offset, stub_vaddr, srcs_stub_stub_bin_len);
-
-	last_phdr->p_filesz += srcs_stub_stub_bin_len + sizeof(uint64_t);
-	last_phdr->p_memsz  += srcs_stub_stub_bin_len + sizeof(uint64_t);
-
-	elf_header->e_entry = stub_vaddr;
-	printf("new e_entry = 0x%lx\n", (unsigned long)elf_header->e_entry);
-
-	memcpy((unsigned char *)woody->map + stub_offset, srcs_stub_stub_bin, srcs_stub_stub_bin_len);
-
-	uint64_t *p_entry = (uint64_t *)((unsigned char *)woody->map + stub_offset + srcs_stub_stub_bin_len);
-	*p_entry = metadata->original_entrypoint;
-	printf("original_entrypoint written at file offset 0x%lx, value=0x%lx\n",
-			stub_offset + srcs_stub_stub_bin_len, (unsigned long)*p_entry);
+	metadata->stub_offset = last_phdr->p_offset + last_phdr->p_filesz;
+	metadata->stub_vaddr  = last_phdr->p_vaddr + last_phdr->p_memsz;
 
 	return (EXIT_SUCCESS);
 }
 
-int	cpy_file(t_file *woody)
+int	woody32(t_file *file, t_file_meta *metadata)
 {
-	int		fd_cpy;
-	size_t	bytes_written = 0;
+	(void)file;
+	(void)metadata;
+	return (1);
+}
 
-	fd_cpy = open(FILENAME, O_CREAT | O_WRONLY | O_TRUNC, 0755);
-	if (fd_cpy < 0)
+int	cpy_file(t_file *original_file, t_file *new_file, size_t final_size)
+{
+	int		fd;
+	ssize_t	written = 0;
+
+	fd = open(new_file->filename, O_CREAT | O_WRONLY | O_TRUNC, 0755);
+	if (fd < 0)
 	{
 		dprintf(2, "Failed to create copy file\n");
 		return (EXIT_FAILURE);
 	}
 
-	while (bytes_written < woody->size)
+	if (ftruncate(fd, final_size) < 0)
 	{
-		ssize_t result = write(fd_cpy, (char *)woody->map + bytes_written, woody->size - bytes_written);
-		if (result <= 0)
-		{
-			perror("write copy file");
-			close(fd_cpy);
-			return (EXIT_FAILURE);
-		}
-		bytes_written += result;
+		dprintf(2, "Failed to truncate copy file\n");
+		close(fd);
+		return (EXIT_FAILURE);
 	}
 
-	close(fd_cpy);
+	while (written < (ssize_t)original_file->size)
+	{
+		ssize_t ret = write(fd,
+			(char *)original_file->map + written,
+			original_file->size - written);
+
+		if (ret <= 0)
+		{
+			dprintf(2, "Failed to write copy file\n");
+			close(fd);
+			return (EXIT_FAILURE);
+		}
+		written += ret;
+	}
+
+	close(fd);
 	return (EXIT_SUCCESS);
 }
 

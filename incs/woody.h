@@ -26,18 +26,27 @@ typedef struct s_file
 
 typedef struct	s_file_meta {
 	uint64_t	text_offset;
+	uint64_t	text_vaddr;
 	uint64_t	text_size;
 	uint64_t	original_entrypoint;
+
+	uint64_t	stub_offset;
+	uint64_t	stub_vaddr;
+	uint64_t	stub_size;
+
+	uint64_t	text_padding;
+	uint64_t	required_filesize;
+
 	uint32_t	key[4];
 }	t_file_meta;
 
 /* file */
 int			check_file_format(t_file *file, int open_flags, int mmap_prot, int mmap_flags);
-int			cpy_file(t_file *file);
+int			cpy_file(t_file *original_file, t_file *new_file, size_t final_size);
 
 /* elf */
 int			check_elf_header(t_file *file);
-int			woody64(t_file	*file, t_file_meta *metadata);
+int			analyze_file64(t_file	*file, t_file_meta *metadata);
 int			woody32(t_file	*file, t_file_meta *metadata);
 
 /* crypto */

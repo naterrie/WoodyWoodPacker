@@ -22,8 +22,14 @@ static void initialize(t_file *original_file, t_file *new_file, t_file_meta *met
 	new_file->filename = NULL;
 
 	metadata->text_offset = 0;
+	metadata->text_vaddr = 0;
 	metadata->text_size = 0;
 	metadata->original_entrypoint = 0;
+	metadata->stub_offset = 0;
+	metadata->stub_vaddr = 0;
+	metadata->stub_size = 0;
+	metadata->text_padding = 0;
+	metadata->required_filesize = 0;
 	ft_memset(metadata->key, 0, sizeof(metadata->key));
 }
 
@@ -48,31 +54,40 @@ int main(int ac, char **av)
 	if (check_file_format(&original_file, O_RDONLY, PROT_READ, MAP_PRIVATE) != EXIT_SUCCESS)
 		return (cleanup(&original_file, &new_file, EXIT_FAILURE));
 
-	if (cpy_file(&original_file) != EXIT_SUCCESS)
-		return (cleanup(&original_file, &new_file, EXIT_FAILURE));
-	
 	generate_key(metadata.key);
 	dprintf(1, "KEY: %X %X %X %X\n", metadata.key[0], metadata.key[1], metadata.key[2], metadata.key[3]);
 
-	if (check_file_format(&new_file, O_RDWR, PROT_READ | PROT_WRITE, MAP_SHARED) != EXIT_SUCCESS)
-		return (cleanup(&original_file, &new_file, EXIT_FAILURE));
-	
 	elf_h = check_elf_header(&original_file);
 	if (elf_h == ELFCLASS64)
 	{
-		woody64(&new_file, &metadata);
+	    if (analyze_file64(&original_file, &metadata) != EXIT_SUCCESS)
+	        return (cleanup(&original_file, &new_file, EXIT_FAILURE));
 	}
 	else if (elf_h == ELFCLASS32)
 	{
-		woody32(&new_file, &metadata);
+	    if (woody32(&original_file, &metadata) != EXIT_SUCCESS)
+	        return (cleanup(&original_file, &new_file, EXIT_FAILURE));
 	}
 	else
 		return (cleanup(&original_file, &new_file, EXIT_FAILURE));
 
-	unsigned char	*text_content = new_file.map + metadata.text_offset;
-	size_t	padding = 8 - (metadata.text_size % 8);
-	memset(text_content + metadata.text_size, padding, padding);
-	xtea_encrypt_buff(text_content, metadata.text_size + padding, metadata.key);
+	metadata.text_padding = 8 - (metadata.text_size % 8);
+
+	metadata.stub_size =
+		srcs_stub_stub_bin_len +
+		sizeof(uint64_t) * 3 +
+		sizeof(uint32_t) * 4;
+
+	metadata.required_filesize =
+		original_file.size +
+		metadata.stub_size +
+		metadata.text_padding;
+
+	if (cpy_file(&original_file, &new_file, metadata.required_filesize) != EXIT_SUCCESS)
+		return (cleanup(&original_file, &new_file, EXIT_FAILURE));
+
+	if (check_file_format(&new_file, O_RDWR, PROT_READ | PROT_WRITE, MAP_SHARED) != EXIT_SUCCESS)
+		return (cleanup(&original_file, &new_file, EXIT_FAILURE));
 
 	return(cleanup(&original_file, &new_file, EXIT_SUCCESS));
 }
