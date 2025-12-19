@@ -92,11 +92,6 @@ int patch_elf64(t_file *file, t_file_meta *metadata)
 
     ehdr->e_entry = metadata->stub_vaddr;
 
-    printf("PATCH ELF64:\n");
-    printf("  new p_filesz: 0x%lx\n", (unsigned long)last_rx->p_filesz);
-    printf("  new p_memsz : 0x%lx\n", (unsigned long)last_rx->p_memsz);
-    printf("  new e_entry : 0x%lx\n", (unsigned long)ehdr->e_entry);
-
     return (EXIT_SUCCESS);
 }
 
