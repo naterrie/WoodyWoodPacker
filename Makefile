@@ -59,7 +59,6 @@ $(DIR_OBJS):
 clean:
 	@$(PRINTF) "$(_GREEN)Cleaning up object files in $(DIR_OBJS)...$(_WHITE)\n"
 	@rm -rf $(DIR_OBJS)
-	@rm woody
 
 fclean: clean
 	@$(PRINTF) "$(_YELLOW)Removing $(NAME)$(_WHITE)\n"

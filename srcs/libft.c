@@ -8,3 +8,16 @@ int ft_strlen(const char *s)
 		len++;
 	return (len);
 }
+
+void	*ft_memset(void *s,	int c, size_t len)
+{
+	char	*ptr;
+
+	ptr = (char *)s;
+	while (len > 0)
+	{
+		ptr[len - 1] = c;
+		len--;
+	}
+	return (s);
+}

@@ -1,6 +1,6 @@
 #include "woody.h"
 
-int	woody64(t_woody	*woody, t_woody_meta *metadata)
+int	woody64(t_file	*woody, t_file_meta *metadata)
 {
 	Elf64_Ehdr	*elf_header = (Elf64_Ehdr *)woody->map;
 	Elf64_Phdr	*program_header = (Elf64_Phdr *)(woody->map + elf_header->e_phoff);
@@ -97,7 +97,7 @@ int	woody64(t_woody	*woody, t_woody_meta *metadata)
 	return (EXIT_SUCCESS);
 }
 
-int	woody32(t_woody *woody, t_woody_meta *metadata)
+int	woody32(t_file *woody, t_file_meta *metadata)
 {
 	Elf32_Ehdr	*elf_header = (Elf32_Ehdr *)woody->map;
 	Elf32_Phdr	*program_header = (Elf32_Phdr *)(woody->map + elf_header->e_phoff);
@@ -175,7 +175,7 @@ int	woody32(t_woody *woody, t_woody_meta *metadata)
 	return (EXIT_SUCCESS);
 }
 
-int	cpy_file(t_woody *woody)
+int	cpy_file(t_file *woody)
 {
 	int		fd_cpy;
 	size_t	bytes_written = 0;
